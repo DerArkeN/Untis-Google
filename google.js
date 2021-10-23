@@ -1,3 +1,4 @@
+const { startOfDay, endOfDay } = require('date-fns');
 const {google} = require('googleapis');
 require('dotenv').config();
 
@@ -71,12 +72,58 @@ module.exports.insertEvent = async (event) => {
 };
 
 module.exports.getEvents = async (dateTimeStart, dateTimeEnd) => {
+    if(typeof(dateTimeStart) == Date) dateTimeStart.toISOString();
+    if(typeof(dateTimeEnd) == Date) dateTimeEnd.toISOString();
     try {
         let response = await calendar.events.list({
             auth: auth,
             calendarId: calendarId,
             timeMin: dateTimeStart,
             timeMax: dateTimeEnd,
+            timeZone: 'Europe/Berlin'
+        });
+    
+        let items = response['data']['items'];
+        return items;
+    } catch (error) {
+        console.log(`Error at getEvents --> ${error}`);
+        return 0;
+    }
+};
+
+module.exports.getEvents = async (dateTimeStart) => {
+    if(typeof(dateTimeStart) == Date) dateTimeStart.toISOString();
+    try {
+        let response = await calendar.events.list({
+            auth: auth,
+            calendarId: calendarId,
+            singleEvents: true,
+            timeMin: dateTimeStart,
+            timeZone: 'Europe/Berlin'
+        });
+    
+        let items = response['data']['items'];
+        return items;
+    } catch (error) {
+        console.log(`Error at getEvents --> ${error}`);
+        return 0;
+    }
+};
+
+module.exports.getEventsFromDay = async (day) => {
+    day = startOfDay(day);
+    console.log(day);
+    let end = endOfDay(day);
+    console.log(end);
+    day.toISOString();
+    end.toISOString();
+    try {
+        let response = await calendar.events.list({
+            auth: auth,
+            calendarId: calendarId,
+            singleEvents: true,
+            timeMin: day,
+            timeMax: end,
             timeZone: 'Europe/Berlin'
         });
     

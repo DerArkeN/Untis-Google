@@ -1,6 +1,8 @@
 const google = require('./google.js');
 const untis = require('./untis.js');
+const { parse, startOfDay } = require('date-fns');
 
 (async () => {
-    untis.rewrite();
+    let x = await untis.checkToday();
+    console.log(x);
 })();

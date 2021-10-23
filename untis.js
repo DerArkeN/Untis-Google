@@ -137,3 +137,10 @@ module.exports.rewrite = async () => {
     let timetable = await this.getTimetable();
     await this.convertAndInsertTimetable(timetable);
 }
+
+module.exports.checkToday = async () => {
+    let day = new Date();
+    let events = await google.getEventsFromDay(day);
+
+    return events;
+}
