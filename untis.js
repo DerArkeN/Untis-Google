@@ -33,7 +33,7 @@ module.exports.getTimetableFor = async (date) => {
 
         filteredClasses = timetable.filter(e => classes.includes(e.su[0].name));
         filteredClasses.sort((a,b) => a.startTime - b.startTime);
-            
+
         return filteredClasses;
 
         await untisAPI.logout();
@@ -104,21 +104,45 @@ module.exports.convertAndInsertTimetable = async (cTimetable) => {
 
                 let start = parse(`${date}${startTime}`, 'yyyyMMddHmm', startOfDay(new Date()));
                 let end = parse(`${date}${endTime}`, 'yyyyMMddHmm', startOfDay(new Date()));
-                
-                let event = {
-                    'summary': `${subject}`,
-                    'description': `${room}/${teacher}`,
-                    'start': {
-                        'dateTime': start,
-                        'timeZone': 'Europe/Berlin'
-                    },
-                    'end': {
-                       'dateTime': end,
-                       'timeZone': 'Europe/Berlin'
-                    }
-                };
 
-                await google.insertEvent(event);
+                if(lesson.code) {
+                    if(lesson.code == 'cancelled') {
+                        let code = lesson.code;
+
+                        let event = {
+                            'summary': `${subject}`,
+                            'description': `${room}/${teacher}`,
+                            'colorId': '4',
+                            'start': {
+                                'dateTime': start,
+                                'timeZone': 'Europe/Berlin'
+                            },
+                            'end': {
+                               'dateTime': end,
+                               'timeZone': 'Europe/Berlin'
+                            }
+                        };
+
+                        await google.insertEvent(event);
+                    }
+                }else {
+                    let event = {
+                        'summary': `${subject}`,
+                        'description': `${room}/${teacher}`,
+                        'start': {
+                            'dateTime': start,
+                            'timeZone': 'Europe/Berlin'
+                        },
+                        'end': {
+                           'dateTime': end,
+                           'timeZone': 'Europe/Berlin'
+                        }
+                    };
+
+                    await google.insertEvent(event);
+                }
+                
+
 
                 i += 1;
                 process.stdout.clearLine();
