@@ -3,11 +3,14 @@ const untis = require('./untis.js');
 const { parse, startOfDay } = require('date-fns');
 
 (async () => {
-    const interval = setInterval(() => {
-        let date = new Date();
+    // const interval = setInterval(() => {
+    //     let date = new Date();
 
-        if(date.getHours() == 21 && date.getMinutes() === 24) {
-            untis.rewrite();
-        }
-    }, 30000);
+    //     console.log(date.getHours(), ':' ,date.getMinutes());
+    //     if(date.getHours() == 15 && date.getMinutes() === 37) {
+    //     }
+    // }, 60000);
+    
+    //untis.rewrite();
+    console.log(await untis.getTimetable());
 })();

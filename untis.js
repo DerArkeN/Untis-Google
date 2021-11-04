@@ -59,6 +59,7 @@ module.exports.getTimetable = async () => {
     
                 date.setDate(date.getDate() + 1);
             }catch(err) {
+                console.log(err);
                 break;
             }finally {
                 process.stdout.clearLine();
@@ -105,49 +106,36 @@ module.exports.convertAndInsertTimetable = async (cTimetable) => {
                 let start = parse(`${date}${startTime}`, 'yyyyMMddHmm', startOfDay(new Date()));
                 let end = parse(`${date}${endTime}`, 'yyyyMMddHmm', startOfDay(new Date()));
 
+                let colorId = 2;
+
                 if(lesson.code) {
                     if(lesson.code == 'cancelled') {
                         let code = lesson.code;
 
-                        let event = {
-                            'summary': `${subject}`,
-                            'description': `${room}/${teacher}`,
-                            'colorId': '4',
-                            'start': {
-                                'dateTime': start,
-                                'timeZone': 'Europe/Berlin'
-                            },
-                            'end': {
-                               'dateTime': end,
-                               'timeZone': 'Europe/Berlin'
-                            }
-                        };
-
-                        await google.insertEvent(event);
+                        colorId = 4;
                     }
-                }else {
-                    let event = {
-                        'summary': `${subject}`,
-                        'description': `${room}/${teacher}`,
-                        'start': {
-                            'dateTime': start,
-                            'timeZone': 'Europe/Berlin'
-                        },
-                        'end': {
-                           'dateTime': end,
-                           'timeZone': 'Europe/Berlin'
-                        }
-                    };
-
-                    await google.insertEvent(event);
                 }
-                
 
+                var event = {
+                    'summary': `${subject}`,
+                    'description': `${room}/${teacher}`,
+                    'colorId': `${colorId}`,
+                    'start': {
+                        'dateTime': start,
+                        'timeZone': 'Europe/Berlin'
+                    },
+                    'end': {
+                       'dateTime': end,
+                       'timeZone': 'Europe/Berlin'
+                    }
+                };
+                
+                await google.insertEvent(event);
 
                 i += 1;
                 process.stdout.clearLine();
                 process.stdout.cursorTo(0);
-                process.stdout.write(`Inserted ${i} timetables.`);
+                process.stdout.write(`Inserted ${i} events.`);
             }
         }
     }catch(err) {
