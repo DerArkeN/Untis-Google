@@ -52,15 +52,25 @@ module.exports.getTimetable = async () => {
         while(true) {
             try{
                 let timetable = await untisAPI.getOwnClassTimetableFor(date);
-    
-                fTimetable = timetable.filter(e => classes.includes(e.su[0].name));
-
-                cTimetable.push(fTimetable);
+                
+                let fClasses = [];
+                for(const val of timetable) {
+                    let subj = val.su[0];
+                    if(subj) {
+                        if(classes.includes(subj.name)) {
+                            cTimetable.push(val);
+                        }
+                    }
+                }
     
                 date.setDate(date.getDate() + 1);
             }catch(err) {
-                console.log(err);
-                break;
+                if(err.message == `Server didn't returned any result.`) {
+                    break;
+                }else {
+                    console.log(err);
+                    break;
+                }
             }finally {
                 process.stdout.clearLine();
                 process.stdout.cursorTo(0);
@@ -93,50 +103,47 @@ module.exports.getHolidays = async () => {
 module.exports.convertAndInsertTimetable = async (cTimetable) => {
     let i = 0;
     try {
-        for(const cT in cTimetable) {
-            let day = cTimetable[cT];
-            for(const lesson of day) {
-                let date = lesson.date;
-                let startTime = lesson.startTime;
-                let endTime = lesson.endTime;
-                let subject = lesson.su[0].longname;
-                let room = lesson.ro[0].name;
-                let teacher = lesson.te[0].longname;
+        for(const lesson of cTimetable) {
+            let date = lesson.date;
+            let startTime = lesson.startTime;
+            let endTime = lesson.endTime;
+            let subject = lesson.su[0].longname;
+            let room = lesson.ro[0].name;
+            let teacher = lesson.te[0].longname;
 
-                let start = parse(`${date}${startTime}`, 'yyyyMMddHmm', startOfDay(new Date()));
-                let end = parse(`${date}${endTime}`, 'yyyyMMddHmm', startOfDay(new Date()));
+            let start = parse(`${date}${startTime}`, 'yyyyMMddHmm', startOfDay(new Date()));
+            let end = parse(`${date}${endTime}`, 'yyyyMMddHmm', startOfDay(new Date()));
 
-                let colorId = 2;
+            let colorId = 2;
 
-                if(lesson.code) {
-                    if(lesson.code == 'cancelled') {
-                        let code = lesson.code;
-
-                        colorId = 4;
-                    }
+            if(lesson.code) {
+                if(lesson.code == 'cancelled') {
+                    let code = lesson.code;
+                    colorId = 4;
                 }
-
-                var event = {
-                    'summary': `${subject}`,
-                    'description': `${room}/${teacher}`,
-                    'colorId': `${colorId}`,
-                    'start': {
-                        'dateTime': start,
-                        'timeZone': 'Europe/Berlin'
-                    },
-                    'end': {
-                       'dateTime': end,
-                       'timeZone': 'Europe/Berlin'
-                    }
-                };
-                
-                await google.insertEvent(event);
-
-                i += 1;
-                process.stdout.clearLine();
-                process.stdout.cursorTo(0);
-                process.stdout.write(`Inserted ${i} events.`);
             }
+
+            var event = {
+                'summary': `${subject}`,
+                'description': `${room}/${teacher}`,
+                'colorId': `${colorId}`,
+                'start': {
+                    'dateTime': start,
+                    'timeZone': 'Europe/Berlin'
+                },
+                'end': {
+                   'dateTime': end,
+                   'timeZone': 'Europe/Berlin'
+                }
+            };
+            
+            await google.insertEvent(event);
+
+            i += 1;
+
+            process.stdout.clearLine();
+            process.stdout.cursorTo(0);
+            process.stdout.write(`Inserted ${i} events.`);
         }
     }catch(err) {
         console.log(err);
