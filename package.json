@@ -1,0 +1,27 @@
+{
+  "name": "untis-google",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "dotenv": "^10.0.0",
+    "eslint": "^8.0.0",
+    "googleapis": "^88.2.0",
+    "reps": "^1.0.6",
+    "webuntis": "^1.15.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DerArkeN/Untis-Google.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DerArkeN/Untis-Google/issues"
+  },
+  "homepage": "https://github.com/DerArkeN/Untis-Google#readme"
+}
