@@ -4,7 +4,7 @@ const { parse, startOfDay } = require('date-fns');
 const WebUntis = require('webuntis');
 const google = require('./google');
 
-const untisAPI = new WebUntis(process.env.SCHOOL, process.env.USER, process.env.PASSWORD, process.env.URL);
+const untisAPI = new WebUntis(process.env.SCHOOL, process.env.WEBUSER, process.env.PASSWORD, process.env.WEBURL);
 
 const classes = ["g2", "M2", "Mu1", "ch1", "eth2", "bio2", "inf1", "gk3", "E1", "d2", "s3"]
 
