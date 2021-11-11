@@ -110,11 +110,26 @@ module.exports.getEvents = async (dateTimeStart) => {
     }
 };
 
+module.exports.getEvents = async () => {
+    try {
+        let response = await calendar.events.list({
+            auth: auth,
+            calendarId: calendarId,
+            singleEvents: true,
+            timeZone: 'Europe/Berlin'
+        });
+    
+        let items = response['data']['items'];
+        return items;
+    } catch (error) {
+        console.log(`Error at getEvents --> ${error}`);
+        return 0;
+    }
+};
+
 module.exports.getEventsFromDay = async (day) => {
     day = startOfDay(day);
-    console.log(day);
     let end = endOfDay(day);
-    console.log(end);
     day.toISOString();
     end.toISOString();
     try {
@@ -136,7 +151,6 @@ module.exports.getEventsFromDay = async (day) => {
 };
 
 module.exports.deleteEvent = async (eventId) => {
-
     try {
         let response = await calendar.events.delete({
             auth: auth,
@@ -155,6 +169,32 @@ module.exports.deleteEvent = async (eventId) => {
     }
 };
 
+module.exports.update = async (eventId, subject, room, teacher, colorId, start, end) => {
+    try{
+        let response = await calendar.events.update({
+            auth: auth,
+            calendarId: calendarId,
+            eventId: eventId,
+            resource: {
+                'summary': `${subject}`,
+                'description': `${room}/${teacher}`,
+                'colorId': `${colorId}`,
+                'start': {
+                    'dateTime': start,
+                    'timeZone': 'Europe/Berlin'
+                },
+                'end': {
+                   'dateTime': end,
+                   'timeZone': 'Europe/Berlin'
+                }
+            }
+        });
+    }catch(err) {
+        console.log(`Error at update --> ${err}`);
+        return 0;
+    }
+}
+
 module.exports.deleteAllEventsFromToday = async () => {
     let i = 0;
     let today = new Date();
@@ -163,17 +203,9 @@ module.exports.deleteAllEventsFromToday = async () => {
         for(const val of events) {
             await this.deleteEvent(val.id);
             i += 1;
-            process.stdout.clearLine();
-            process.stdout.cursorTo(0);
-            process.stdout.write(`Deleted ${i} events.`);
+            process.stdout.write(`Deleted ${i} events.\r`);
         }
     }catch(err) {
         console.log(err);
     }
-}
-
-module.exports.sleep = (ms) => {
-    return new Promise((resolve) => {
-        setTimeout(resolve, ms);
-    });
 }

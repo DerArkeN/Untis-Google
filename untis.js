@@ -14,10 +14,19 @@ module.exports.getTimetableForToday = async () => {
         
         let timetable = await untisAPI.getOwnClassTimetableForToday();
 
-        filteredClasses = timetable.filter(e => classes.includes(e.su[0].name));
-        filteredClasses.sort((a,b) => a.startTime - b.startTime);
+        let cTimetable = [];
+
+        let fClasses = [];
+        for(const val of timetable) {
+            let subj = val.su[0];
+            if(subj) {
+                if(classes.includes(subj.name)) {
+                    cTimetable.push(val);
+                }
+            }
+        }
             
-        return filteredClasses;
+        return cTimetable;
 
         await untisAPI.logout();
     }catch(err) {
@@ -31,10 +40,19 @@ module.exports.getTimetableFor = async (date) => {
         
         let timetable = await untisAPI.getOwnClassTimetableFor(date);
 
-        filteredClasses = timetable.filter(e => classes.includes(e.su[0].name));
-        filteredClasses.sort((a,b) => a.startTime - b.startTime);
+        let cTimetable = [];
 
-        return filteredClasses;
+        let fClasses = [];
+        for(const val of timetable) {
+            let subj = val.su[0];
+            if(subj) {
+                if(classes.includes(subj.name)) {
+                    cTimetable.push(val);
+                }
+            }
+        }
+
+        return cTimetable;
 
         await untisAPI.logout();
     }catch(err) {
@@ -72,9 +90,7 @@ module.exports.getTimetable = async () => {
                     break;
                 }
             }finally {
-                process.stdout.clearLine();
-                process.stdout.cursorTo(0);
-                process.stdout.write(`Gathered ${cTimetable.length} timetables.`);
+                process.stdout.write(`Gathered ${cTimetable.length} timetables.\r`);
             }
         }
 
@@ -141,9 +157,7 @@ module.exports.convertAndInsertTimetable = async (cTimetable) => {
 
             i += 1;
 
-            process.stdout.clearLine();
-            process.stdout.cursorTo(0);
-            process.stdout.write(`Inserted ${i} events.`);
+            process.stdout.write(`Inserted ${i} events.\r`);
         }
     }catch(err) {
         console.log(err);
