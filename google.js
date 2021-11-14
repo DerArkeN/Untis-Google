@@ -78,6 +78,8 @@ module.exports.getEvents = async (dateTimeStart, dateTimeEnd) => {
         let response = await calendar.events.list({
             auth: auth,
             calendarId: calendarId,
+            maxResults: 1000,
+            singleEvents: true,
             timeMin: dateTimeStart,
             timeMax: dateTimeEnd,
             timeZone: 'Europe/Berlin'
@@ -98,6 +100,7 @@ module.exports.getEvents = async (dateTimeStart) => {
             auth: auth,
             calendarId: calendarId,
             singleEvents: true,
+            maxResults: 1000,
             timeMin: dateTimeStart,
             timeZone: 'Europe/Berlin'
         });

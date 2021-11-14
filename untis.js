@@ -171,8 +171,9 @@ module.exports.rewrite = async () => {
     await this.convertAndInsertTimetable(timetable);
 }
 
-module.exports.update = async () => {
-    let events = await google.getEvents();    
+module.exports.update = async(date) => {
+    let events = await google.getEvents(date);    
+    let i = 0;
     for(const event of events) {
         let eventId = event.id;
         let description = event.description.split('/');
@@ -185,7 +186,9 @@ module.exports.update = async () => {
 
         let lessons = await this.getTimetableFor(start);
         let lesson = lessons.find(e => e.startTime == convertDateToUntisTime(start) || e.date == convertDateToUntisDate(start));
-        
+
+        console.log([event, lesson]);
+
         if(lesson) {
             let subject1 = lesson.su[0].longname;
             let room1 = lesson.ro[0].name;
@@ -203,8 +206,12 @@ module.exports.update = async () => {
                 console.log(`Updated: ${subject} on ${start}`);
                 google.update(eventId, subject1, room1, teacher1, colorId1, start, end);
             }
+
+        i++;
+        process.stdout.write(`Checked ${i}/${events.length} events\r`)
         }
     }
+    console.log('Updated all events');
 }
 
 function convertDateToUntisDate(date) {
