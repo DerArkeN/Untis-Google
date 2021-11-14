@@ -116,6 +116,8 @@ module.exports.getEvents = async () => {
             auth: auth,
             calendarId: calendarId,
             singleEvents: true,
+            maxResults: 1000,
+            orderBy: 'startTime',
             timeZone: 'Europe/Berlin'
         });
     
