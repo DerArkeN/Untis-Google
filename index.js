@@ -2,6 +2,7 @@ const untis = require('./untis.js');
 const google = require('./google');
 
 (async () => {
+    console.log('Started untis-google.')
     const interval = setInterval(async() => {
         let date = new Date();
 
