@@ -80,6 +80,7 @@ module.exports.getEvents = async (dateTimeStart, dateTimeEnd) => {
             calendarId: calendarId,
             maxResults: 1000,
             singleEvents: true,
+            orderBy: 'startTime',
             timeMin: dateTimeStart,
             timeMax: dateTimeEnd,
             timeZone: 'Europe/Berlin'
@@ -93,7 +94,7 @@ module.exports.getEvents = async (dateTimeStart, dateTimeEnd) => {
     }
 };
 
-module.exports.getEvents = async (dateTimeStart) => {
+module.exports.getEventsMin = async(dateTimeStart) => {
     if(typeof(dateTimeStart) == Date) dateTimeStart.toISOString();
     try {
         let response = await calendar.events.list({
@@ -102,6 +103,7 @@ module.exports.getEvents = async (dateTimeStart) => {
             singleEvents: true,
             maxResults: 1000,
             timeMin: dateTimeStart,
+            orderBy: 'startTime',
             timeZone: 'Europe/Berlin'
         });
     
@@ -204,7 +206,7 @@ module.exports.deleteAllEventsFromToday = async () => {
     let i = 0;
     let today = new Date();
     try{
-        let events = await this.getEvents(today);
+        let events = await this.getEventsMin(today);
         for(const val of events) {
             await this.deleteEvent(val.id);
             i += 1;

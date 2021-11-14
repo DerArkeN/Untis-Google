@@ -172,7 +172,7 @@ module.exports.rewrite = async () => {
 }
 
 module.exports.update = async(date) => {
-    let events = await google.getEvents(date);    
+    let events = await google.getEventsMin(date);    
     let i = 0;
     for(const event of events) {
         let eventId = event.id;
@@ -185,9 +185,7 @@ module.exports.update = async(date) => {
         let end = new Date(event.end.dateTime);
 
         let lessons = await this.getTimetableFor(start);
-        let lesson = lessons.find(e => e.startTime == convertDateToUntisTime(start) || e.date == convertDateToUntisDate(start));
-
-        console.log([event, lesson]);
+        let lesson = lessons.find(e => e.startTime == convertDateToUntisTime(start) && e.date == convertDateToUntisDate(start));
 
         if(lesson) {
             let subject1 = lesson.su[0].longname;

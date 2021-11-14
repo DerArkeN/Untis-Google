@@ -1,4 +1,5 @@
 const untis = require('./untis.js');
+const google = require('./google');
 
 (async () => {
     // const interval = setInterval(async() => {
@@ -10,5 +11,5 @@ const untis = require('./untis.js');
     //         console.log(date.getHours(), ':' ,date.getMinutes());
     //     }
     // }, 60000);
-    await untis.update();
+    await untis.update(new Date());
 })();
