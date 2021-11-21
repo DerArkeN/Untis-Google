@@ -212,6 +212,7 @@ module.exports.deleteAllEventsFromToday = async () => {
             i += 1;
             process.stdout.write(`Deleted ${i} events.\r`);
         }
+        console.log('');
     }catch(err) {
         console.log(err);
     }

@@ -3,6 +3,7 @@ require('dotenv').config();
 const { parse, startOfDay } = require('date-fns');
 const WebUntis = require('webuntis');
 const google = require('./google');
+const logger = require('./logger');
 
 const untisAPI = new WebUntis(process.env.SCHOOL, process.env.WEBUSER, process.env.PASSWORD, process.env.WEBURL);
 
@@ -60,7 +61,7 @@ module.exports.getTimetableFor = async (date) => {
     }
 }
 
-module.exports.getTimetable = async () => {
+module.exports.getTimetable = async() => {
     try{
         await untisAPI.login();
 
@@ -94,6 +95,8 @@ module.exports.getTimetable = async () => {
             }
         }
 
+        logger.info(`Gathered ${cTimetable.length} timetables.`, {time: `${new Date()}`});
+        console.log('');
         return cTimetable;
 
         await untisAPI.logout();
@@ -116,7 +119,7 @@ module.exports.getHolidays = async () => {
     }
 }
 
-module.exports.convertAndInsertTimetable = async (cTimetable) => {
+module.exports.convertAndInsertTimetable = async(cTimetable) => {
     let i = 0;
     try {
         for(const lesson of cTimetable) {
@@ -158,7 +161,9 @@ module.exports.convertAndInsertTimetable = async (cTimetable) => {
             i += 1;
 
             process.stdout.write(`Inserted ${i} events.\r`);
+            logger.info(`Inserted ${subject} on ${start}`, {time: `${new Date()}`});
         }
+        console.log('');
     }catch(err) {
         console.log(err);
     }
@@ -201,7 +206,8 @@ module.exports.update = async(date) => {
             }
 
             if(!(room == room1) || !(teacher == teacher1) || !(colorId == colorId1) || !(subject == subject1)){
-                console.log(`Updated: ${subject} on ${start}`);
+                console.log(`Updated: ${subject} on ${start}.`);
+                logger.info(`Updated: ${subject} on ${start}.`, {time: `${new Date()}`});
                 google.update(eventId, subject1, room1, teacher1, colorId1, start, end);
             }
 
@@ -209,7 +215,34 @@ module.exports.update = async(date) => {
         process.stdout.write(`Checked ${i}/${events.length} events\r`)
         }
     }
+    console.log('');
+    logger.info(`Updated all events`, {time: `${new Date()}`});
     console.log('Updated all events');
+}
+
+module.exports.addNew = async(oldT, curT) => {
+    logger.info(`New events received`, {time: `${new Date()}`});
+
+    let cur1 = [];
+    let old1 = [];
+    let newEvents = [];
+
+    for(const event of oldT) {
+        old1.push(event.id);
+    }
+    for(const event of curT) {
+        cur1.push(event.id);
+    }
+
+    let ids = cur1.filter(x => !old1.includes(x));
+
+    for(const id of ids) {
+        let event = curT.find(x => x.id == id);
+        newEvents.push(event);
+    }
+
+    await this.convertAndInsertTimetable(newEvents);
+    logger.info(`New events added`, {time: `${new Date()}`});
 }
 
 function convertDateToUntisDate(date) {
