@@ -15,7 +15,7 @@ const logger = require('./logger');
         //Update events
         await untis.update();
         //Check if new update got new events and add them in case
-        if(oldT.length !== curT.length) await untis.addNew(oldT, curT);;
+        if(oldT.length !== curT.length) await untis.addNew(oldT, curT);
         oldT = curT;
     }, 60000);
 })();
