@@ -7,14 +7,12 @@ const { parse, startOfDay } = require('date-fns');
 
 	let oldT = await untis.getTimetable();
 	let oldDate = parse(`${oldT[oldT.length-1].date}`, 'yyyyMMdd', startOfDay(new Date()));
-	console.log(oldDate);
 	let running = false;
 	setInterval(async() => {
 		if(running) return;
 		running = true;
 		let curT = await untis.getTimetable();
 		let newDate = parse(`${curT[curT.length-1].date}`, 'yyyyMMdd', startOfDay(new Date()));
-		console.log(newDate);
 
 		//Check if update occured
 		if(JSON.stringify(oldT) !== JSON.stringify(curT)) {
