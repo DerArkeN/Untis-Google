@@ -27,9 +27,8 @@ module.exports.getTimetableForToday = async () => {
 		}
 
 		await untisAPI.logout();
+		cTimetable.sort((a, b) => a.startTime - b.starTime);
 		return cTimetable;
-
-
 	}catch(err) {
 		console.log(err);
 		logger.error(err, {time: `${new Date()}`});
@@ -54,8 +53,8 @@ module.exports.getTimetableFor = async (date) => {
 		}
 
 		await untisAPI.logout();
+		cTimetable.sort((a, b) => a.startTime - b.starTime);
 		return cTimetable;
-
 	}catch(err) {
 		console.log(err);
 		logger.error(err, {time: `${new Date()}`});
@@ -101,8 +100,8 @@ module.exports.getTimetable = async() => {
 		console.log('');
 
 		await untisAPI.logout();
+		cTimetable.sort((a, b) => a.startTime - b.starTime);
 		return cTimetable;
-
 	}catch(err) {
 		console.log(err);
 		logger.error(err, {time: `${new Date()}`});

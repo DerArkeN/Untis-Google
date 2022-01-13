@@ -1,15 +1,20 @@
 const untis = require('./untis');
 const logger = require('./logger');
+const { parse, startOfDay } = require('date-fns');
 
 (async () => {
 	console.log('Started untis-google.');
 
 	let oldT = await untis.getTimetable();
+	let oldDate = parse(`${oldT[oldT.length-1].date}`, 'yyyyMMdd', startOfDay(new Date()));
+	console.log(oldDate);
 	let running = false;
 	setInterval(async() => {
 		if(running) return;
 		running = true;
 		let curT = await untis.getTimetable();
+		let newDate = parse(`${curT[curT.length-1].date}`, 'yyyyMMdd', startOfDay(new Date()));
+		console.log(newDate);
 
 		//Check if update occured
 		if(JSON.stringify(oldT) !== JSON.stringify(curT)) {
@@ -18,11 +23,11 @@ const logger = require('./logger');
 			//Update events
 			await untis.update();
 			//Check if new update got new events and add them in case
-			if(oldT.length < curT.length) await untis.addNew(oldT, curT);
+			if(oldT < newDate) await untis.addNew(oldT, curT);
 			//Update oldT to curT
 			oldT = curT;
 		}
 
 		running = false;
-	}, 60 * 60 * 1000);
+	}, 10);
 })();
