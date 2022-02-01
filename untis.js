@@ -7,7 +7,7 @@ const logger = require('./logger');
 
 const untisAPI = new WebUntis(process.env.SCHOOL, process.env.WEBUSER, process.env.PASSWORD, process.env.WEBURL);
 
-const classes = ['g2', 'M2', 'Mu1', 'ch1', 'eth2', 'bio2', 'inf1', 'gk3', 'E1', 'd2', 's3'];
+const classes = ['geo3', 'g2', 'M2', 'Mu1', 'ch1', 'eth2', 'bio2', 'inf1', 'gk3', 'E1', 'd2', 's3'];
 
 module.exports.getTimetableForToday = async () => {
 	try {
