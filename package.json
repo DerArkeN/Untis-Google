@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "date-fns": "^2.28.0",
     "dotenv": "^10.0.0",
     "googleapis": "^88.2.0",
     "reps": "^1.0.6",

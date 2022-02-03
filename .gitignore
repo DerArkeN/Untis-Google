@@ -106,3 +106,5 @@ dist
 .vscode
 
 .eslintrc.js
+
+.replit

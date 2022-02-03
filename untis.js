@@ -9,6 +9,10 @@ const untisAPI = new WebUntis(process.env.SCHOOL, process.env.WEBUSER, process.e
 
 const classes = ['geo3', 'g2', 'M2', 'Mu1', 'ch1', 'eth2', 'bio2', 'inf1', 'gk3', 'E1', 'd2', 's3'];
 
+module.exports.validateSession = async () => {
+  return await untisAPI.validateSession();
+}
+
 module.exports.getTimetableForToday = async () => {
 	try {
 		await untisAPI.login();

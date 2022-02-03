@@ -4,7 +4,7 @@ const logger = require('./logger');
 require('dotenv').config();
 
 const CREDENTIALS = JSON.parse(process.env.CREDS);
-const calendarId = process.env.CALENDER_ID;
+const calendarId = process.env.CALENDAR_ID;
 
 const SCOPES = 'https://www.googleapis.com/auth/calendar';
 const calendar = google.calendar({version : 'v3'});
