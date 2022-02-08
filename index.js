@@ -6,6 +6,9 @@ const { parse, startOfDay } = require('date-fns');
 (async () => {
 	console.log('Started untis-google.');
 
+  let args = process.argv.slice(2);
+  if(args[0] == 'rewrite') untis.rewrite();
+
   if(untis.validateSession() == true) return;
 	let oldT = await untis.getTimetable();
 
