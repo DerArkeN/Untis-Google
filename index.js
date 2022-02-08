@@ -38,5 +38,5 @@ const { parse, startOfDay } = require('date-fns');
 		}
 
 		running = false;
-  }, 1000);
+  }, 60 * 60 * 1000);
 })();
