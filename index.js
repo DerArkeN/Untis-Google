@@ -19,6 +19,10 @@ const { parse, startOfDay } = require('date-fns');
 		if(running) return;
 		running = true;
 		let curT = await untis.getTimetable();
+    if(!curT.length) {
+      running = false;
+      return;
+    }
 		let newDate = parse(`${curT[curT.length-1].date}`, 'yyyyMMdd', startOfDay(new Date()));
 
 		//Check if update occured
@@ -34,5 +38,5 @@ const { parse, startOfDay } = require('date-fns');
 		}
 
 		running = false;
-  }, 60 * 60 * 1000);
+  }, 1000);
 })();
