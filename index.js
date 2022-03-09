@@ -22,7 +22,7 @@ const { parse, startOfDay } = require('date-fns');
 		if(running) return;
 		running = true;
 		let curT = await untis.getTimetable();
-    if(!curT.length) {
+    if(curT == null) {
       running = false;
       return;
     }
