@@ -131,7 +131,10 @@ module.exports.convertAndInsertTimetable = async(cTimetable) => {
 			if(lesson.code) {
 				if(lesson.code == 'cancelled') {
 					colorId = 4;
-				}
+				}else
+        if(lesson.substText.includes('Aufgaben')) {
+          colorId = 5;
+        }
 			}
 
 			var event = {
@@ -194,7 +197,10 @@ module.exports.update = async(date) => {
 			if(lesson.code) {
 				if(lesson.code == 'cancelled') {
 					colorId1 = 4;
-				}
+				}else
+        if(lesson.substText.includes('Aufgaben')) {
+          colorId = 5;
+        }
 			}
 
 			if(!(room == room1) || !(teacher == teacher1) || !(colorId == colorId1) || !(subject == subject1)){
