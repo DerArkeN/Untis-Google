@@ -18,14 +18,10 @@ const { parse, startOfDay } = require('date-fns');
 
   let running = false;
 	setInterval(async() => {
-    if(untis.validateSession() == true) return;
 		if(running) return;
 		running = true;
 		let curT = await untis.getTimetable();
-    if(curT == null) {
-      running = false;
-      return;
-    }
+
 		let newDate = parse(`${curT[curT.length-1].date}`, 'yyyyMMdd', startOfDay(new Date()));
 
 		//Check if update occured

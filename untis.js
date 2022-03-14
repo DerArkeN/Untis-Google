@@ -16,6 +16,10 @@ module.exports.validateSession = async () => {
 module.exports.getTimetableForToday = async () => {
 	try {
 		await untisAPI.login();
+
+		if(untisAPI.validateSession() == false) {
+			return await this.getTimetableForToday();
+		}
         
 		let timetable = await untisAPI.getOwnClassTimetableForToday();
 
@@ -42,6 +46,10 @@ module.exports.getTimetableForToday = async () => {
 module.exports.getTimetableFor = async (date) => {
 	try {
 		await untisAPI.login();
+		
+		if(untisAPI.validateSession() == false) {
+			return await this.getTimetableFor(date);
+		}
         
 		let timetable = await untisAPI.getOwnClassTimetableFor(date);
 
@@ -68,6 +76,10 @@ module.exports.getTimetableFor = async (date) => {
 module.exports.getTimetable = async() => {
 	try{
 		await untisAPI.login();
+
+		if(untisAPI.validateSession() == false) {
+			return await this.getTimetable();
+		}
 
 		let date = new Date();
 		let cTimetable = [];
@@ -132,9 +144,9 @@ module.exports.convertAndInsertTimetable = async(cTimetable) => {
 				if(lesson.code == 'cancelled') {
 					colorId = 4;
 				}else
-        if(lesson.substText.includes('Aufgaben')) {
-          colorId = 5;
-        }
+				if(lesson.substText.includes('Aufgaben')) {
+				colorId = 5;
+				}
 			}
 
 			var event = {
@@ -198,9 +210,9 @@ module.exports.update = async(date) => {
 				if(lesson.code == 'cancelled') {
 					colorId1 = 4;
 				}else
-        if(lesson.substText.includes('Aufgaben')) {
-          colorId = 5;
-        }
+				if(lesson.substText.includes('Aufgaben')) {
+				colorId1 = 5;
+				}
 			}
 
 			if(!(room == room1) || !(teacher == teacher1) || !(colorId == colorId1) || !(subject == subject1)){
