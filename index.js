@@ -9,7 +9,8 @@ const { parse, startOfDay } = require('date-fns');
 	let args = process.argv.slice(2);
 	if(args[0] == 'rewrite') untis.rewrite();
 
-	if(untis.validateSession() == true) return;
+	await untis.update();
+
 	let oldT = await untis.getTimetable();
 
 	let events = await google.getEvents();
