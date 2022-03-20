@@ -16,43 +16,6 @@ const auth = new google.auth.JWT(
 	SCOPES
 );
 
-const TIMEOFFSET = '+00:00';
-
-module.exports.dateTimeForCalander = () => {
-
-	let date = new Date();
-
-	let year = date.getFullYear();
-	let month = date.getMonth() + 1;
-	if (month < 10) {
-		month = `0${month}`;
-	}
-	let day = date.getDate();
-	if (day < 10) {
-		day = `0${day}`;
-	}
-	let hour = date.getHours();
-	if (hour < 10) {
-		hour = `0${hour}`;
-	}
-	let minute = date.getMinutes();
-	if (minute < 10) {
-		minute = `0${minute}`;
-	}
-
-	let newDateTime = `${year}-${month}-${day}T${hour}:${minute}:00.000${TIMEOFFSET}`;
-
-	let event = new Date(Date.parse(newDateTime));
-
-	let startDate = event;
-	let endDate = new Date(new Date(startDate).setHours(startDate.getHours()+1));
-
-	return {
-		'start': startDate,
-		'end': endDate
-	};
-};
-
 module.exports.insertEvent = async (event) => {
 	try {
 		let response = await calendar.events.insert({
@@ -60,16 +23,9 @@ module.exports.insertEvent = async (event) => {
 			calendarId: calendarId,
 			resource: event
 		});
-    
-		if (response['status'] == 200 && response['statusText'] === 'OK') {
-			return 1;
-		} else {
-			return 0;
-		}
 	}catch(err) {
 		console.log(`Error at insertEvent --> ${err}`);
 		logger.error(err, {time: `${new Date()}`});
-		return 0;
 	}
 };
 
@@ -86,14 +42,12 @@ module.exports.getEvents = async (dateTimeStart, dateTimeEnd) => {
 			timeMin: dateTimeStart,
 			timeMax: dateTimeEnd,
 			timeZone: 'Europe/Berlin'
-		});
-    
+		});  
 		let items = response['data']['items'];
 		return items;
 	} catch(err) {
 		console.log(`Error at getEvents --> ${err}`);
 		logger.error(err, {time: `${new Date()}`});
-		return 0;
 	}
 };
 
@@ -115,7 +69,6 @@ module.exports.getEventsMin = async(dateTimeStart) => {
 	} catch(err) {
 		console.log(`Error at getEvents --> ${err}`);
 		logger.error(err, {time: `${new Date()}`});
-		return 0;
 	}
 };
 
@@ -135,7 +88,6 @@ module.exports.getEvents = async () => {
 	} catch(err) {
 		console.log(`Error at getEvents --> ${err}`);
 		logger.error(err, {time: `${new Date()}`});
-		return 0;
 	}
 };
 
@@ -158,7 +110,6 @@ module.exports.getEventsFromDay = async (day) => {
 		return items;
 	} catch(err) {
 		console.log(`Error at getEvents --> ${err}`);
-		return 0;
 	}
 };
 
@@ -169,12 +120,6 @@ module.exports.deleteEvent = async (eventId) => {
 			calendarId: calendarId,
 			eventId: eventId
 		});
-
-		if (response.data === '') {
-			return 1;
-		} else {
-			return 0;
-		}
 	} catch(err) {
 		console.log(`Error at deleteEvent --> ${err}`);
 		logger.error(err, {time: `${new Date()}`});
@@ -205,15 +150,13 @@ module.exports.update = async (eventId, subject, room, teacher, colorId, start, 
 	}catch(err) {
 		console.log(`Error at update --> ${err}`);
 		logger.error(err, {time: `${new Date()}`});
-		return 0;
 	}
 };
 
 module.exports.deleteAllEventsFromToday = async () => {
 	let i = 0;
-	let today = new Date();
 	try{
-		let events = await this.getEventsMin(today);
+		let events = await this.getEventsMin(new Date());
 		for(const val of events) {
 			await this.deleteEvent(val.id);
 			i += 1;
