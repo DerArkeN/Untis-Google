@@ -200,9 +200,9 @@ module.exports.update = async(date) => {
 	for(const event of events) {
 		let eventId = event.id;
 		if(event.description != null) {
-			let description = event.description.split('/');
+			var description = event.description.split('/');
 		}else {
-			let description = ['404', 'error'];
+			var description = ['404', 'error'];
 		}
 		let room = description[0];
 		let teacher = description[1];
