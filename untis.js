@@ -199,10 +199,15 @@ module.exports.update = async(date) => {
 	let i = 0;
 	for(const event of events) {
 		let eventId = event.id;
-		let description = event.description.split('/');
+		if(event.description != null) {
+			let description = event.description.split('/');
+			let room = description[0];
+			let teacher = description[1];
+		}else {
+			let room = '404';
+			let teacher = 'error';
+		}
 		let subject = event.summary;
-		let room = description[0];
-		let teacher = description[1];
 		let colorId = event.colorId;
 		let start = new Date(event.start.dateTime);
 		let end = new Date(event.end.dateTime);
