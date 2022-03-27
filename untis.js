@@ -201,12 +201,11 @@ module.exports.update = async(date) => {
 		let eventId = event.id;
 		if(event.description != null) {
 			let description = event.description.split('/');
-			let room = description[0];
-			let teacher = description[1];
 		}else {
-			let room = '404';
-			let teacher = 'error';
+			let description = ['404', 'error'];
 		}
+		let room = description[0];
+		let teacher = description[1];
 		let subject = event.summary;
 		let colorId = event.colorId;
 		let start = new Date(event.start.dateTime);
