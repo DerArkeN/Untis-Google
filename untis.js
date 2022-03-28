@@ -259,7 +259,7 @@ module.exports.update = async(date) => {
 			}
 
 			i++;
-			process.stdout.write(`Checked ${i}/${lessons.length} events\r`);
+			process.stdout.write(`Checked ${i}/${events.length} events\r`);
 		}
 	}
 	console.log('');
