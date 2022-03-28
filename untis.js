@@ -208,8 +208,8 @@ module.exports.update = async(date) => {
 		let oldTeacher = description[1];
 		let oldSubject = event.summary;
 		let oldColorId = event.colorId;
-		let oldStart = new Date(event.start.dateTime);
-		let oldEnd = new Date(event.end.dateTime);
+		let start = new Date(event.start.dateTime);
+		let end = new Date(event.end.dateTime);
 
 		let lessons = await this.getTimetableFor(start);
 		let lesson = lessons.find(e => e.startTime == convertDateToUntisTime(start) && e.date == convertDateToUntisDate(start));
