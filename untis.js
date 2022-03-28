@@ -204,41 +204,62 @@ module.exports.update = async(date) => {
 		}else {
 			var description = ['404', 'error'];
 		}
-		let room = description[0];
-		let teacher = description[1];
-		let subject = event.summary;
-		let colorId = event.colorId;
-		let start = new Date(event.start.dateTime);
-		let end = new Date(event.end.dateTime);
+		let oldRoom = description[0];
+		let oldTeacher = description[1];
+		let oldSubject = event.summary;
+		let oldColorId = event.colorId;
+		let oldStart = new Date(event.start.dateTime);
+		let oldEnd = new Date(event.end.dateTime);
 
 		let lessons = await this.getTimetableFor(start);
 		let lesson = lessons.find(e => e.startTime == convertDateToUntisTime(start) && e.date == convertDateToUntisDate(start));
 
 		if(lesson) {
-			let subject1 = lesson.su[0].longname;
-			let room1 = lesson.ro[0].name;
-			let teacher1 = lesson.te[0].longname;
+			let newSubject = lesson.su[0].longname;
+			let newRoom = lesson.ro[0].name;
+			let newTeacher = lesson.te[0].longname;
 
-			let colorId1 = 2;
+			let newColorId = 2;
 			if(lesson.code) {
 				if(lesson.code == 'cancelled') {
-					colorId1 = 4;
+					newColorId = 4;
 				}
 			}else
 			if(lesson.substText) {
 				if(lesson.substText.includes('Aufgaben')) {
-					colorId1 = 5;
+					newColorId = 5;
 				}
 			}
 
-			if(!(room == room1) || !(teacher == teacher1) || !(colorId == colorId1) || !(subject == subject1)){
-				console.log(`Updated: ${subject} on ${start}.`);
-				logger.info(`Updated: ${subject} on ${start}.`, {time: `${new Date()}`});
-				google.update(eventId, subject1, room1, teacher1, colorId1, start, end);
+			if(!(oldRoom == newRoom)) {
+				console.log(`Updated Room: ${subject} on ${start}.`);
+				logger.info(`Updated Room: ${subject} on ${start}.`, {time: `${new Date()}`});
+			}
+			if(!(oldTeacher == newTeacher)) {
+				console.log(`Updated Teacher: ${subject} on ${start}.`);
+				logger.info(`Updated Teacher: ${subject} on ${start}.`, {time: `${new Date()}`});
+			}
+			if(!(oldColorId == newColorId)) {
+				if(newColorId == 4) {
+					console.log(`Cancelled: ${subject} on ${start}.`);
+					logger.info(`Cancelled: ${subject} on ${start}.`, {time: `${new Date()}`});
+				}
+				if(newColorId == 5) {
+					console.log(`Tasks: ${subject} on ${start}.`);
+					logger.info(`Tasks: ${subject} on ${start}.`, {time: `${new Date()}`});
+				}
+			}
+			if(!(oldSubject == newSubject)) {
+				console.log(`Updated Subject: ${subject} on ${start}.`);
+				logger.info(`Updated Subject: ${subject} on ${start}.`, {time: `${new Date()}`});				
+			}
+			
+			if(!(oldRoom == newRoom) || !(oldTeacher == newTeacher) || !(oldColorId == newColorId) || !(oldSubject == newSubject)){
+				google.update(eventId, newSubject, newRoom, newTeacher, newColorId, start, end);
 			}
 
 			i++;
-			process.stdout.write(`Checked ${i}/${events.length} events\r`);
+			process.stdout.write(`Checked ${i}/${lessons.length} events\r`);
 		}
 	}
 	console.log('');
