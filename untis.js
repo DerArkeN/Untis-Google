@@ -37,11 +37,9 @@ module.exports.getTimetableForToday = async () => {
 		await untisAPI.logout();
 		cTimetable.sort((a, b) => a.startTime - b.starTime);
 		
-		if(cTimetable == null) return untis.getTimetable();
 		return cTimetable;
 	}catch(err) {
-		console.log(err);
-		logger.error(err, {time: `${new Date()}`});
+		return untis.getTimetableForToday();
 	}
 };
 
@@ -70,11 +68,9 @@ module.exports.getTimetableFor = async (date) => {
 		await untisAPI.logout();
 		cTimetable.sort((a, b) => a.startTime - b.starTime);
 
-		if(cTimetable == null) return untis.getTimetable();
 		return cTimetable;
 	}catch(err) {
-		console.log(err);
-		logger.error(err, {time: `${new Date()}`});
+		return untis.getTimetableFor(date);
 	}
 };
 
@@ -124,11 +120,9 @@ module.exports.getTimetable = async() => {
 		await untisAPI.logout();
 		cTimetable.sort((a, b) => a.startTime - b.starTime);
 
-		if(cTimetable == null) return untis.getTimetable();
 		return cTimetable;
 	}catch(err) {
-		console.log(err);
-		logger.error(err, {time: `${new Date()}`});
+		return untis.getTimetable();
 	}
 };
 
