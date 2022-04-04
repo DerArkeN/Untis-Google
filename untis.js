@@ -226,26 +226,26 @@ module.exports.update = async(date) => {
 			}
 
 			if(!(oldRoom == newRoom)) {
-				console.log(`Updated Room: ${subject} on ${start}.`);
-				logger.info(`Updated Room: ${subject} on ${start}.`, {time: `${new Date()}`});
+				console.log(`Updated Room: ${newSubject} on ${start}.`);
+				logger.info(`Updated Room: ${newSubject} on ${start}.`, {time: `${new Date()}`});
 			}
 			if(!(oldTeacher == newTeacher)) {
-				console.log(`Updated Teacher: ${subject} on ${start}.`);
-				logger.info(`Updated Teacher: ${subject} on ${start}.`, {time: `${new Date()}`});
+				console.log(`Updated Teacher: ${newSubject} on ${start}.`);
+				logger.info(`Updated Teacher: ${newSubject} on ${start}.`, {time: `${new Date()}`});
 			}
 			if(!(oldColorId == newColorId)) {
 				if(newColorId == 4) {
-					console.log(`Cancelled: ${subject} on ${start}.`);
-					logger.info(`Cancelled: ${subject} on ${start}.`, {time: `${new Date()}`});
+					console.log(`Cancelled: ${newSubject} on ${start}.`);
+					logger.info(`Cancelled: ${newSubject} on ${start}.`, {time: `${new Date()}`});
 				}
 				if(newColorId == 5) {
-					console.log(`Tasks: ${subject} on ${start}.`);
-					logger.info(`Tasks: ${subject} on ${start}.`, {time: `${new Date()}`});
+					console.log(`Tasks: ${newSubject} on ${start}.`);
+					logger.info(`Tasks: ${newSubject} on ${start}.`, {time: `${new Date()}`});
 				}
 			}
 			if(!(oldSubject == newSubject)) {
-				console.log(`Updated Subject: ${subject} on ${start}.`);
-				logger.info(`Updated Subject: ${subject} on ${start}.`, {time: `${new Date()}`});				
+				console.log(`Updated Subject: ${newSubject} on ${start}.`);
+				logger.info(`Updated Subject: ${newSubject} on ${start}.`, {time: `${new Date()}`});				
 			}
 			
 			if(!(oldRoom == newRoom) || !(oldTeacher == newTeacher) || !(oldColorId == newColorId) || !(oldSubject == newSubject)){
