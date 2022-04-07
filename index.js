@@ -20,6 +20,7 @@ const { parse, startOfDay } = require('date-fns');
 	let running = false;
 		setInterval(async() => {
 			if(running) return;
+                        if(untis != null) return;
 			running = true;
 			let curT = await untis.getTimetable();
 
