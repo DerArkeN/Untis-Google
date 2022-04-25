@@ -7,7 +7,7 @@ const { parse, startOfDay } = require('date-fns');
 	console.log('Started untis-google.');
 
 	let args = process.argv.slice(2);
-	if(args[0] == 'rewrite') untis.rewrite();
+	if(args[0] == 'rewrite') await untis.rewrite();
 
 	await untis.update();
 
