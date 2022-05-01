@@ -262,8 +262,6 @@ module.exports.update = async(date) => {
 };
 
 module.exports.addNew = async(oldT, curT) => {
-	logger.info('New events received', {time: `${new Date()}`});
-
 	let cur1 = [];
 	let old1 = [];
 	let newEvents = [];
@@ -283,7 +281,6 @@ module.exports.addNew = async(oldT, curT) => {
 	}
 
 	await this.convertAndInsertTimetable(newEvents);
-	logger.info('New events added', {time: `${new Date()}`});
 };
 
 function convertDateToUntisDate(date) {

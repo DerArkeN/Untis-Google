@@ -8,36 +8,35 @@ const { parse, startOfDay } = require('date-fns');
 
 	let args = process.argv.slice(2);
 	if(args[0] == 'rewrite') await untis.rewrite();
-
-	await untis.update();
+	if(args[0] == 'update') await untis.update();
 
 	let oldT = await untis.getTimetable();
 
-	let events = await google.getEvents();
-	let lastEvent = events[events.length-1];
-	let oldDate = new Date(lastEvent.start.dateTime);
-
 	let running = false;
-		setInterval(async() => {
-			if(running) return;
-                        if(untis == null) return;
-			running = true;
-			let curT = await untis.getTimetable();
-
-			let newDate = parse(`${curT[curT.length-1].date}`, 'yyyyMMdd', startOfDay(new Date()));
-
-			//Check if update occured
-			if(JSON.stringify(oldT) !== JSON.stringify(curT)) {
-				logger.info('Update received', {time: `${new Date()}`});
-				console.log('Update received');
-				//Update events
-				await untis.update(new Date());
-				//Check if new update got new events and add them in case
-				if(oldDate < newDate) await untis.addNew(oldT, curT);
-				//Update oldT to curT
-				oldT = curT;
-			}
-
+	intervalID = setInterval(async() => {
+		if(running) return;
+		if(untis == null) return;
+		running = true;
+		try {
+			var curT = await untis.getTimetable();
+		}catch(err) {
+			logger.error(err, {time: `${new Date()}`});
 			running = false;
-	}, 60 * 60 * 1000);
+			return;
+		}
+	
+		//Check if update occured
+		if(JSON.stringify(oldT) !== JSON.stringify(curT)) {
+			logger.info('Update received', {time: `${new Date()}`});
+			console.log('Update received');
+			//Add new events
+			await untis.addNew(oldT, curT);
+			//Update events
+			await untis.update(new Date());
+			//Update oldT to curT
+			oldT = curT;
+		}
+	
+		running = false;
+	}, 30 * 60 * 1000);
 })();
