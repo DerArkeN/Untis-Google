@@ -193,11 +193,7 @@ module.exports.update = async(date) => {
 	let i = 0;
 	for(const event of events) {
 		let eventId = event.id;
-		if(event.description != null) {
-			var description = event.description.split('/');
-		}else {
-			var description = ['404', 'error'];
-		}
+		let description = event.description != null ? event.description.split('/') : ['404', 'error'];
 		let oldRoom = description[0];
 		let oldTeacher = description[1];
 		let oldSubject = event.summary;
@@ -209,9 +205,9 @@ module.exports.update = async(date) => {
 		let lesson = lessons.find(e => e.startTime == convertDateToUntisTime(start) && e.date == convertDateToUntisDate(start));
 
 		if(lesson) {
-			let newSubject = lesson.su[0].longname;
-			let newRoom = lesson.ro[0].name;
-			let newTeacher = lesson.te[0].longname;
+			let newSubject = lesson.su[0] != null ? lesson.su[0].longname : "";
+			let newRoom = lesson.ro[0] != null ? lesson.ro[0].name : "";
+			let newTeacher = lesson.te[0] != null ? lesson.te[0].longname : "";
 
 			let newColorId = 2;
 			if(lesson.code) {
