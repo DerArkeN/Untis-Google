@@ -133,9 +133,9 @@ module.exports.convertAndInsertTimetable = async(cTimetable) => {
 			let date = lesson.date;
 			let startTime = lesson.startTime;
 			let endTime = lesson.endTime;
-			let subject = lesson.su[0].longname;
-			let room = lesson.ro[0].name;
-			let teacher = lesson.te[0].longname;
+			let subject = lesson.su[0] != null ? lesson.su[0].longname : "";
+			let room = lesson.ro[0] != null ? lesson.ro[0].name : "";
+			let teacher = lesson.te[0] != null ? lesson.te[0].longname : "";
 
 			let start = parse(`${date}${startTime}`, 'yyyyMMddHmm', startOfDay(new Date()));
 			let end = parse(`${date}${endTime}`, 'yyyyMMddHmm', startOfDay(new Date()));
