@@ -8,7 +8,7 @@ const { parse, startOfDay } = require('date-fns');
 
 	let args = process.argv.slice(2);
 	if(args[0] == 'rewrite') await untis.rewrite();
-	if(args[0] == 'update') await untis.update();
+	if(args[0] == 'update') await untis.update(new Date());
 
 	let oldT = await untis.getTimetable();
 
