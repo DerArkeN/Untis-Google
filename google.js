@@ -38,7 +38,7 @@ module.exports.insertEvent = async(eventId, subject, room, teacher, colorId, sta
 			}
 		});
 	}catch(err) {
-		if(err.message == 'Error: The requested identifier already exists.') {
+		if(err.message == 'The requested identifier already exists.') {
 			await this.update(eventId, subject, room, teacher, colorId, start, end);
 		}else {
 			console.log(`Error at insertEvent --> ${err}`);
