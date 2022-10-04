@@ -8,12 +8,13 @@ const logger = require('./logger');
 const untisAPI = new WebUntis(process.env.SCHOOL, process.env.WEBUSER, process.env.PASSWORD, process.env.WEBURL);
 
 const classes = process.env.CLASSES.split(", ");
-console.log(classes);
+console.log('Running with classes:', classes);
 
 module.exports.validateSession = async () => {
   return await untisAPI.validateSession();
 }
 
+/* Debug Method
 module.exports.getTimetableForToday = async () => {
 	try {	
 		if(untisAPI.validateSession() == false) {
@@ -40,9 +41,11 @@ module.exports.getTimetableForToday = async () => {
 		
 		return cTimetable;
 	}catch(err) {
-		return untis.getTimetableForToday();
+		console.log(err);
+		logger.error(err, {time: `${new Date()}`});
 	}
 };
+ */
 
 module.exports.getTimetableFor = async (date) => {
 	try {
@@ -71,7 +74,8 @@ module.exports.getTimetableFor = async (date) => {
 
 		return cTimetable;
 	}catch(err) {
-		return untisAPI.getTimetableFor(date);
+		console.log(err);
+		logger.error(err, {time: `${new Date()}`});
 	}
 };
 
@@ -123,14 +127,16 @@ module.exports.getTimetable = async() => {
 
 		return cTimetable;
 	}catch(err) {
-		return untisAPI.getTimetable();
+		console.log(err);
+		logger.error(err, {time: `${new Date()}`});
 	}
 };
 
 module.exports.convertAndInsertTimetable = async(cTimetable) => {
-	let i = 0;
 	try {
+		let i = 0;
 		for(const lesson of cTimetable) {
+			let id = lesson.id;
 			let date = lesson.date;
 			let startTime = lesson.startTime;
 			let endTime = lesson.endTime;
@@ -156,8 +162,9 @@ module.exports.convertAndInsertTimetable = async(cTimetable) => {
 
 			var event = {
 				'summary': `${subject}`,
-				'description': `${room}/${teacher}`,
 				'colorId': `${colorId}`,
+				'id': `${id}`,
+				'location': `${room}/${teacher}`,
 				'start': {
 					'dateTime': start,
 					'timeZone': 'Europe/Berlin'
@@ -194,16 +201,16 @@ module.exports.update = async(date) => {
 	let i = 0;
 	for(const event of events) {
 		let eventId = event.id;
-		let description = event.description != null ? event.description.split('/') : ['404', 'error'];
-		let oldRoom = description[0];
-		let oldTeacher = description[1];
+		let location = event.location != null ? event.location.split('/') : ['404', 'error'];
+		let oldRoom = location[0];
+		let oldTeacher = location[1];
 		let oldSubject = event.summary;
 		let oldColorId = event.colorId;
 		let start = new Date(event.start.dateTime);
 		let end = new Date(event.end.dateTime);
 
 		let lessons = await this.getTimetableFor(start);
-		let lesson = lessons.find(e => e.startTime == convertDateToUntisTime(start) && e.date == convertDateToUntisDate(start));
+		let lesson = lessons.find(e => e.id == eventId);
 
 		if(lesson) {
 			let newSubject = lesson.su[0] != null ? lesson.su[0].longname : "";
@@ -279,17 +286,3 @@ module.exports.addNew = async(oldT, curT) => {
 
 	await this.convertAndInsertTimetable(newEvents);
 };
-
-function convertDateToUntisDate(date) {
-	return (
-		date.getFullYear().toString() +
-        (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1).toString() +
-        (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()).toString()
-	);
-}
-
-function convertDateToUntisTime(date) {
-	return (
-		date.getHours().toString() + date.getMinutes().toString()
-	);
-}

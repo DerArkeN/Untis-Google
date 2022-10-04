@@ -29,28 +29,6 @@ module.exports.insertEvent = async (event) => {
 	}
 };
 
-module.exports.getEvents = async (dateTimeStart, dateTimeEnd) => {
-	if(typeof(dateTimeStart) == Date) dateTimeStart.toISOString();
-	if(typeof(dateTimeEnd) == Date) dateTimeEnd.toISOString();
-	try {
-		let response = await calendar.events.list({
-			auth: auth,
-			calendarId: calendarId,
-			maxResults: 1000,
-			singleEvents: true,
-			orderBy: 'startTime',
-			timeMin: dateTimeStart,
-			timeMax: dateTimeEnd,
-			timeZone: 'Europe/Berlin'
-		});  
-		let items = response['data']['items'];
-		return items;
-	} catch(err) {
-		console.log(`Error at getEvents --> ${err}`);
-		logger.error(err, {time: `${new Date()}`});
-	}
-};
-
 module.exports.getEventsMin = async(dateTimeStart) => {
 	if(typeof(dateTimeStart) == Date) dateTimeStart.toISOString();
 	try {
@@ -72,44 +50,30 @@ module.exports.getEventsMin = async(dateTimeStart) => {
 	}
 };
 
-module.exports.getEvents = async () => {
-	try {
-		let response = await calendar.events.list({
+module.exports.update = async (eventId, subject, room, teacher, colorId, start, end) => {
+	try{
+		await calendar.events.update({
 			auth: auth,
 			calendarId: calendarId,
-			singleEvents: true,
-			maxResults: 1000,
-			orderBy: 'startTime',
-			timeZone: 'Europe/Berlin'
+			eventId: eventId,
+			resource: {
+				'summary': `${subject}`,
+				'colorId': `${colorId}`,
+				'id': `${eventId}`,
+				'location': `${room}/${teacher}`,
+				'start': {
+					'dateTime': start,
+					'timeZone': 'Europe/Berlin'
+				},
+				'end': {
+					'dateTime': end,
+					'timeZone': 'Europe/Berlin'
+				}
+			}
 		});
-    
-		let items = response['data']['items'];
-		return items;
-	} catch(err) {
-		console.log(`Error at getEvents --> ${err}`);
+	}catch(err) {
+		console.log(`Error at update --> ${err}`);
 		logger.error(err, {time: `${new Date()}`});
-	}
-};
-
-module.exports.getEventsFromDay = async (day) => {
-	day = startOfDay(day);
-	let end = endOfDay(day);
-	day.toISOString();
-	end.toISOString();
-	try {
-		let response = await calendar.events.list({
-			auth: auth,
-			calendarId: calendarId,
-			singleEvents: true,
-			timeMin: day,
-			timeMax: end,
-			timeZone: 'Europe/Berlin'
-		});
-    
-		let items = response['data']['items'];
-		return items;
-	} catch(err) {
-		console.log(`Error at getEvents --> ${err}`);
 	}
 };
 
@@ -124,32 +88,6 @@ module.exports.deleteEvent = async (eventId) => {
 		console.log(`Error at deleteEvent --> ${err}`);
 		logger.error(err, {time: `${new Date()}`});
 		return 0;
-	}
-};
-
-module.exports.update = async (eventId, subject, room, teacher, colorId, start, end) => {
-	try{
-		await calendar.events.update({
-			auth: auth,
-			calendarId: calendarId,
-			eventId: eventId,
-			resource: {
-				'summary': `${subject}`,
-				'description': `${room}/${teacher}`,
-				'colorId': `${colorId}`,
-				'start': {
-					'dateTime': start,
-					'timeZone': 'Europe/Berlin'
-				},
-				'end': {
-					'dateTime': end,
-					'timeZone': 'Europe/Berlin'
-				}
-			}
-		});
-	}catch(err) {
-		console.log(`Error at update --> ${err}`);
-		logger.error(err, {time: `${new Date()}`});
 	}
 };
 
