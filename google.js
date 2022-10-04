@@ -16,16 +16,34 @@ const auth = new google.auth.JWT(
 	SCOPES
 );
 
-module.exports.insertEvent = async (event) => {
+module.exports.insertEvent = async(eventId, subject, room, teacher, colorId, start, end) => {
 	try {
 		let response = await calendar.events.insert({
 			auth: auth,
 			calendarId: calendarId,
-			resource: event
+			eventId: eventId,
+			resource: {
+				'summary': `${subject}`,
+				'colorId': `${colorId}`,
+				'id': `${eventId}`,
+				'location': `${room}/${teacher}`,
+				'start': {
+					'dateTime': start,
+					'timeZone': 'Europe/Berlin'
+				},
+				'end': {
+					'dateTime': end,
+					'timeZone': 'Europe/Berlin'
+				}
+			}
 		});
 	}catch(err) {
-		console.log(`Error at insertEvent --> ${err}`);
-		logger.error(err, {time: `${new Date()}`});
+		if(err.message == 'Error: The requested identifier already exists.') {
+			await this.update(eventId, subject, room, teacher, colorId, start, end);
+		}else {
+			console.log(`Error at insertEvent --> ${err}`);
+			logger.error(err, {time: `${new Date()}`});
+		}
 	}
 };
 
@@ -50,7 +68,7 @@ module.exports.getEventsMin = async(dateTimeStart) => {
 	}
 };
 
-module.exports.update = async (eventId, subject, room, teacher, colorId, start, end) => {
+module.exports.update = async(eventId, subject, room, teacher, colorId, start, end) => {
 	try{
 		await calendar.events.update({
 			auth: auth,

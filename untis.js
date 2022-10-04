@@ -160,22 +160,7 @@ module.exports.convertAndInsertTimetable = async(cTimetable) => {
 				}
 			}
 
-			var event = {
-				'summary': `${subject}`,
-				'colorId': `${colorId}`,
-				'id': `${id}`,
-				'location': `${room}/${teacher}`,
-				'start': {
-					'dateTime': start,
-					'timeZone': 'Europe/Berlin'
-				},
-				'end': {
-					'dateTime': end,
-					'timeZone': 'Europe/Berlin'
-				}
-			};
-            
-			await google.insertEvent(event);
+			await google.insertEvent(id, subject, room, teacher, colorId, start, end);
 
 			i += 1;
 
