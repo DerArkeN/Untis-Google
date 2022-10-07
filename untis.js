@@ -107,7 +107,7 @@ module.exports.getTimetable = async() => {
     
 				date.setDate(date.getDate() + 1);
 			}catch(err) {
-				if(err.message == 'Server didn\'t returned any result.') {
+				if(err.message == 'Server didn\'t return any result.') {
 					break;
 				}else {
 					console.log(err);
