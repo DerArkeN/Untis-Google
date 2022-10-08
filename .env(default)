@@ -1,8 +1,8 @@
 #Untis
 SCHOOL=
+WEBURL=
 WEBUSER=
 PASSWORD=
-WEBURL=
 
 #Google
 CREDS=
