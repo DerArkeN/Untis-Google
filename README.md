@@ -2,6 +2,9 @@
 
 ### Used to synchronize webuntis events with your google calendar. Requires an running server with nodejs.
 
+### Functionality
+Enters your specified webuntis lessons in your google calendar with room and teacher. Updates every hour. Cancelled lessons will be marked red.
+
 ### Step by step instruction
 
 #### Download or clone the repository
