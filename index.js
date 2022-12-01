@@ -43,11 +43,7 @@ let run = async() => {
 				if(retry > 5) {
 					console.log(err);
 					logger.error(err, {time: `${new Date()}`});
-					running = false;
-					clearInterval(intervalID);
-					break;
-				}
-				retry++;
+				}	
 			}
 		}
 		
