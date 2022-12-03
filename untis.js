@@ -4,6 +4,7 @@ const { parse, startOfDay } = require('date-fns');
 const WebUntis = require('webuntis');
 const google = require('./google');
 const logger = require('./logger');
+const push = require(`./pushsafer`);
 
 const untisAPI = new WebUntis(process.env.SCHOOL, process.env.WEBUSER, process.env.PASSWORD, process.env.WEBURL);
 
@@ -191,6 +192,7 @@ module.exports.update = async(date) => {
 		let oldTeacher = location[1];
 		let oldSubject = event.summary;
 		let oldColorId = event.colorId;
+		let substText = lesson.substText;
 		let start = new Date(event.start.dateTime);
 		let end = new Date(event.end.dateTime);
 
@@ -208,8 +210,8 @@ module.exports.update = async(date) => {
 					newColorId = 4;
 				}
 			}else
-			if(lesson.substText) {
-				if(lesson.substText.includes('Aufgaben')) {
+			if(substText) {
+				if(substText.includes('Aufgaben')) {
 					newColorId = 5;
 				}
 			}
@@ -226,10 +228,12 @@ module.exports.update = async(date) => {
 				if(newColorId == 4) {
 					console.log(`Cancelled: ${newSubject} on ${start}.`);
 					logger.info(`Cancelled: ${newSubject} on ${start}.`, {time: `${new Date()}`});
+					push.sendCancellation(newSubject, start);
 				}
 				if(newColorId == 5) {
 					console.log(`Tasks: ${newSubject} on ${start}.`);
 					logger.info(`Tasks: ${newSubject} on ${start}.`, {time: `${new Date()}`});
+					push.sendTasks(newSubject, start, substText);
 				}
 			}
 			if(!(oldSubject == newSubject)) {

@@ -8,7 +8,7 @@ Enters your specified webuntis lessons in your google calendar with room and tea
 ### Step by step instruction
 
 #### Download or clone the repository
-Download a release and unzip it or use ```git clone https://github.com/DerArkeN/Untis-Google.git``` in a new folder
+Download a release and unzip it.
 
 #### Setting up ```.env(default)```
 Go onto [webuntis](https://webuntis.com) and search for your school

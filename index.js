@@ -1,6 +1,7 @@
 const untis = require('./untis.js');
 const logger = require('./logger.js');
 const google = require('./google.js');
+const push = require('./pushsafer');
 const { parse, startOfDay } = require('date-fns');
 
 let run = async() => {
@@ -47,6 +48,7 @@ let run = async() => {
 					clearInterval(intervalID);
 					logger.info(`Stopped after ${retry} tries.`, {time: `${new Date()}`});
 					console.log(`Stopped after ${retry} tries.`);
+					push.sendCrash();
 					break;
 				}
 				retry++;
