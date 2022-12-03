@@ -192,7 +192,6 @@ module.exports.update = async(date) => {
 		let oldTeacher = location[1];
 		let oldSubject = event.summary;
 		let oldColorId = event.colorId;
-		let substText = lesson.substText;
 		let start = new Date(event.start.dateTime);
 		let end = new Date(event.end.dateTime);
 
@@ -203,6 +202,7 @@ module.exports.update = async(date) => {
 			let newSubject = lesson.su[0] != null ? lesson.su[0].longname : "";
 			let newRoom = lesson.ro[0] != null ? lesson.ro[0].name : "";
 			let newTeacher = lesson.te[0] != null ? lesson.te[0].longname : "";
+			let substText = lesson.substText;
 
 			let newColorId = 2;
 			if(lesson.code) {
