@@ -6,6 +6,7 @@ const { parse, startOfDay } = require('date-fns');
 let run = async() => {
 	console.log('Started untis-google.');
 
+	// Arguments
 	let args = process.argv.slice(2);
 	if(args[0] == 'rewrite') await untis.rewrite();
 	if(args[0] == 'update') await untis.update(new Date());
@@ -18,13 +19,11 @@ let run = async() => {
 		if(untis == null) return;
 		running = true;
 
-		// Request 5 times max
 		let success = false;
 		let retry = 0;
 		while(!success) {
 			try {
 				var curT = await untis.getTimetable();
-				success = true;
 
 				// Check if update occured
 				if(JSON.stringify(oldT) !== JSON.stringify(curT)) {
@@ -34,19 +33,25 @@ let run = async() => {
 					await untis.addNew(oldT, curT);
 					// Update events
 					await untis.update(new Date());
-					// Update oldT to curT
+					// Update oldT to curT  
 					oldT = curT;
 				}
-			
+
+				success = true;
 				running = false;
 			}catch(err) {
-				if(retry > 5) {
+				if(retry > 10) {
 					console.log(err);
 					logger.error(err, {time: `${new Date()}`});
-				}	
+					running = false;
+					clearInterval(intervalID);
+					logger.info(`Stopped after ${retry} tries.`, {time: `${new Date()}`});
+					console.log(`Stopped after ${retry} tries.`);
+					break;
+				}
+				retry++;
 			}
 		}
-		
 	}, 30 * 60 * 1000);
 }
 
