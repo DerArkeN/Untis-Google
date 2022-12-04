@@ -12,5 +12,6 @@ CALENDAR_ID=
 CLASSES="geo3, g2, M2, Mu1, ch1, eth2, bio2, vma1, gk3, E1, d2, s3"
 
 #PUSHSAFER
+PUSHENABLED=false
 PUSHKEY=
 DEVICE=
