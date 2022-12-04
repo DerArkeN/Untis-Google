@@ -51,3 +51,10 @@ Finally save the file as ```.env``` without "(default)"
 4. Use ```node index update``` to start the program and execute an instant update
 
 Have fun.
+
+#### Pushsaver integration (optional)
+If you want push notifications you can use a pushsaver integration for your program.
+Click [here](https://www.pushsafer.com/) for more information.
+1. Change ``PUSHENABLED=`` from 'false' to 'true' in your .env file
+2. Enter your API Key as well as your device ID
+3. (Re)start the program
