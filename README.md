@@ -19,8 +19,8 @@ Click on the school and look at the URL
 
 ![image](https://user-images.githubusercontent.com/31077445/194700913-ee48d3fe-c87c-4ce6-baf8-a071be304c12.png)
 
-1. Paste the name you can see in the URL at ```SCHOOL=```
-2. Paste the link xxx.webuntis.com at ```WEBURL=```
+1. Paste the name you can see in the URL at ```SCHOOL=``` (here 'GreatSankey')
+2. Paste the link xxx.webuntis.com at ```WEBURL=``` (here 'peleus.webuntis.com')
 3. Then enter your webuntis login credentials at ```WEBUSER=``` and ```PASSWORD=```
 
 Follow [this](https://developers.google.com/calendar/api/quickstart/nodejs) introduction until step 7.
