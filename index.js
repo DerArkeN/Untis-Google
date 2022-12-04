@@ -4,7 +4,9 @@ const google = require('./google.js');
 const push = require('./pushsafer');
 const { parse, startOfDay } = require('date-fns');
 
-let run = async() => {
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const run = async() => {
 	console.log('Started untis-google.');
 
 	// Arguments
@@ -51,6 +53,7 @@ let run = async() => {
 					push.sendCrash();
 					break;
 				}
+				await delay(3000);
 				retry++;
 			}
 		}

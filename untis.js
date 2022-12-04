@@ -255,23 +255,26 @@ module.exports.update = async(date) => {
 };
 
 module.exports.addNew = async(oldT, curT) => {
-	let cur1 = [];
-	let old1 = [];
-	let newEvents = [];
-
-	for(const event of oldT) {
-		old1.push(event.id);
+	if(oldT || curT) {
+		let cur1 = [];
+		let old1 = [];
+		let newEvents = [];
+	
+		for(const event of oldT) {
+			old1.push(event.id);
+		}
+		for(const event of curT) {
+			cur1.push(event.id);
+		}
+	
+		let ids = cur1.filter(x => !old1.includes(x));
+	
+		for(const id of ids) {
+			let event = curT.find(x => x.id == id);
+			newEvents.push(event);
+		}
+	
+		await this.convertAndInsertTimetable(newEvents);
 	}
-	for(const event of curT) {
-		cur1.push(event.id);
-	}
-
-	let ids = cur1.filter(x => !old1.includes(x));
-
-	for(const id of ids) {
-		let event = curT.find(x => x.id == id);
-		newEvents.push(event);
-	}
-
-	await this.convertAndInsertTimetable(newEvents);
+	return;
 };
