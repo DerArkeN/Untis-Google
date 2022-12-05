@@ -10,7 +10,7 @@ const device=process.env.DEVICE;
 module.exports.sendCancellation = async(subject, start) => {
 	if(process.env.PUSHENABLED == 'true') {
 		let day=("0" + start.getDate()).slice(-2);
-		let month=("0" + start.getDate()).slice(-2);
+		let month=("0" + (start.getMonth() + 1)).slice(-2);
 	
 		let date = `${day}.${month}.`
 	
@@ -35,7 +35,7 @@ module.exports.sendCancellation = async(subject, start) => {
 module.exports.sendTasks = async(subject, start, substText) => {
 	if(process.env.PUSHENABLED == 'true') {		
 		let day=("0" + start.getDate()).slice(-2);
-		let month=("0" + start.getDate()).slice(-2);
+		let month=("0" + (start.getMonth() + 1)).slice(-2);
 	
 		let date = `${day}.${month}.`
 	
