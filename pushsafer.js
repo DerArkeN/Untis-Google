@@ -41,7 +41,7 @@ module.exports.sendTasks = async(subject, start, substText) => {
 	
 		var msg = {
 			t: `Tasks in ${subject}.`,
-			m: `${substText}`,
+			m: `Tasks in ${subject} on ${date} (${substText})`,
 			i: '4',
 			c: '#fccb00',
 			d: device
