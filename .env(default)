@@ -1,17 +1,20 @@
 #Untis
-SCHOOL=
-WEBURL=
-WEBUSER=
-PASSWORD=
+SCHOOL=""
+WEBURL=""
+WEBUSER=""
+PASSWORD=""
 
-#Google
+#Google (Creds without ""!!!)
 CREDS=
-CALENDAR_ID=
+CALENDAR_ID=""
 
 #CONFIG
-CLASSES="geo3, g2, M2, Mu1, ch1, eth2, bio2, vma1, gk3, E1, d2, s3"
+#(Leave empty for all classes)
+CLASSES=""
+#Recommended: >30
+INTERVAL_MINUTES="30"
 
 #PUSHSAFER
-PUSHENABLED=false
-PUSHKEY=
-DEVICE=
+PUSHENABLED="false"
+PUSHKEY=""
+DEVICE=""
