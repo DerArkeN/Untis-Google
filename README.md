@@ -38,7 +38,7 @@ Next go to [Google Calendar](https://calendar.google.com).
 Next add the time interval the calendar shall update, it is recommended to use 30min or more.
 Lastly add the classes you want to add to your calendar in the short form that you will find on [webuntis](https://webuntis.com), seperated with a comma or leave empty for all classes.
 
-Your file should look something like this:
+Your file should look something like this (outdated):
 
 ![image](https://user-images.githubusercontent.com/31077445/194701967-c52c709e-b688-4ca0-829f-636819949672.png)
 
