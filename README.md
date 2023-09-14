@@ -35,7 +35,8 @@ Next go to [Google Calendar](https://calendar.google.com).
 4. Enter the "client_email" from your ```credentials.json``` and set the permissions to "Make changes and manage sharing"
 5. Now scroll "Integrate calendar" and copy the "Calendar ID" to ```CALENDAR_ID=```
 
-Lastly add the classes you want to add to your calendar in the short form that you will find on [webuntis](https://webuntis.com), seperated with a comma.
+Next add the time interval the calendar shall update, it is recommended to use 30min or more.
+Lastly add the classes you want to add to your calendar in the short form that you will find on [webuntis](https://webuntis.com), seperated with a comma or leave empty for all classes.
 
 Your file should look something like this:
 
