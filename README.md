@@ -1,6 +1,6 @@
 # Untis-Google
 
-### Used to synchronize webuntis events with your google calendar. Requires an running server with nodejs.
+### Used to synchronize webuntis events with your google calendar. Requires a running server with nodejs.
 
 ### Functionality
 Enters your specified webuntis lessons in your google calendar with room and teacher. Updates every hour. Cancelled lessons will be marked red.
@@ -19,8 +19,8 @@ Click on the school and look at the URL
 
 ![image](https://user-images.githubusercontent.com/31077445/194700913-ee48d3fe-c87c-4ce6-baf8-a071be304c12.png)
 
-1. Paste the name you can see in the URL at ```SCHOOL=```
-2. Paste the link xxx.webuntis.com at ```WEBURL=```
+1. Paste the name you can see in the URL at ```SCHOOL=``` (here 'GreatSankey')
+2. Paste the link xxx.webuntis.com at ```WEBURL=``` (here 'peleus.webuntis.com')
 3. Then enter your webuntis login credentials at ```WEBUSER=``` and ```PASSWORD=```
 
 Follow [this](https://developers.google.com/calendar/api/quickstart/nodejs) introduction until step 7.
@@ -51,3 +51,10 @@ Finally save the file as ```.env``` without "(default)"
 4. Use ```node index update``` to start the program and execute an instant update
 
 Have fun.
+
+#### Pushsaver integration (optional)
+If you want push notifications you can use a pushsaver integration for your program.
+Click [here](https://www.pushsafer.com/) for more information.
+1. Change ``PUSHENABLED=`` from 'false' to 'true' in your .env file
+2. Enter your API Key as well as your device ID
+3. (Re)start the program

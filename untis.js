@@ -252,7 +252,7 @@ module.exports.update = async (date) => {
 };
 
 module.exports.addNew = async (oldT, curT) => {
-	if (oldT || curT) {
+	if (oldT && curT) {
 		let cur1 = [];
 		let old1 = [];
 		let newEvents = [];
