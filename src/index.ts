@@ -1,10 +1,8 @@
-const untis = require('./untis.js');
-const logger = require('./logger.js');
-const google = require('./google.js');
-const push = require('./pushsafer');
-const { parse, startOfDay } = require('date-fns');
+import untis from './untis';
+import logger from './logger';
+import push from './pushsafer';
 
-const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 const run = async () => {
 	console.log('Started untis-google.');
@@ -17,7 +15,7 @@ const run = async () => {
 	let oldT = await untis.getTimetable();
 
 	let running = false;
-	intervalID = setInterval(async () => {
+	let intervalID = setInterval(async () => {
 		if (running) return;
 		if (untis == null) return;
 		running = true;
@@ -42,7 +40,7 @@ const run = async () => {
 
 				success = true;
 				running = false;
-			} catch (err) {
+			} catch (err: any) {
 				if (retry > 10) {
 					console.log(err);
 					logger.error(err, { time: `${new Date()}` });
@@ -57,7 +55,7 @@ const run = async () => {
 				retry++;
 			}
 		}
-	}, process.env.INTERVAL_MINUTES * 60 * 1000);
+	}, parseInt(process.env.INTERVAL_MINUTES || "30") * 60 * 1000);
 }
 
 (async () => {
