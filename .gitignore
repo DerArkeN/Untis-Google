@@ -108,3 +108,5 @@ dist
 .eslintrc.js
 
 .replit
+# ingore build
+build/

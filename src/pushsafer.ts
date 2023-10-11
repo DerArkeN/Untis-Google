@@ -1,13 +1,13 @@
-const push = require('pushsafer-notifications');
-const logger = require('./logger');
+import push from 'pushsafer-notifications';
+import logger from './logger';
 
 const p = new push({
-	k: process.env.PUSHKEY
+	k: process.env.PUSHKEY!
 });
 
 const device = process.env.DEVICE;
 
-module.exports.sendCancellation = async (subject, start) => {
+const sendCancellation = async (subject:any, start:Date) => {
 	if (process.env.PUSHENABLED == 'true') {
 		let day = ("0" + start.getDate()).slice(-2);
 		let month = ("0" + (start.getMonth() + 1)).slice(-2);
@@ -22,17 +22,17 @@ module.exports.sendCancellation = async (subject, start) => {
 			d: device
 		};
 
-		p.send(msg, function (err, result) {
+		p.send(msg, function(err, result) {
 			if (err) {
 				console.log(err);
-				logger.error(err, { time: `${new Date()}` });
+				logger.error(err.message, { time: `${new Date()}` });
 			}
 		});
 	}
 	return;
 }
 
-module.exports.sendCrash = async () => {
+const sendCrash = async () => {
 	if (process.env.PUSHENABLED == 'true') {
 		var msg = {
 			t: `untisgoogle crashed.`,
@@ -42,12 +42,14 @@ module.exports.sendCrash = async () => {
 			d: device
 		};
 
-		p.send(msg, function (err, result) {
+		p.send(msg, function(err, result) {
 			if (err) {
 				console.log(err);
-				logger.error(err, { time: `${new Date()}` });
+				logger.error(err.message, { time: `${new Date()}` });
 			}
 		});
 	}
 	return;
 }
+
+export default { sendCancellation, sendCrash };

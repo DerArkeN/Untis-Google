@@ -1,21 +1,21 @@
 require('dotenv').config();
 
-const { parse, startOfDay } = require('date-fns');
-const WebUntis = require('webuntis');
-const google = require('./google');
-const logger = require('./logger');
-const push = require(`./pushsafer`);
+import { parse, startOfDay } from 'date-fns';
+import WebUntis, { Lesson } from 'webuntis';
+import google from './google';
+import logger from './logger';
+import push from `./pushsafer`;
 
-const untisAPI = new WebUntis(process.env.SCHOOL, process.env.WEBUSER, process.env.PASSWORD, process.env.WEBURL);
+const untisAPI = new WebUntis(process.env.SCHOOL!, process.env.WEBUSER!, process.env.PASSWORD!, process.env.WEBURL!);
 
-const classes = process.env.CLASSES.split(", ");
-if (classes != '') {
+const classes = process.env.CLASSES!.split(", ");
+if (!!classes) {
 	console.log('Running with classes:', classes);
 } else {
 	console.log('Running with all classes');
 }
 
-module.exports.validateSession = async () => {
+const validateSession = async () => {
 	return await untisAPI.validateSession();
 }
 
@@ -52,23 +52,25 @@ module.exports.getTimetableForToday = async () => {
 };
  */
 
-module.exports.getTimetableFor = async (date) => {
+const getTimetableFor: (date: Date) => Promise<Lesson[]> = async (date) => {
+	let cTimetable: Lesson[] = [];
 	try {
-		if (untisAPI.validateSession() == false) {
+		if (await untisAPI.validateSession() == false) {
 			await untisAPI.logout();
-			return await this.getTimetableFor(date);
+			// Question: why is this function called again?
+			return await getTimetableFor(date);
 		}
 
 		await untisAPI.login();
 
+		// we could also validate the session here
 		let timetable = await untisAPI.getOwnClassTimetableFor(date);
 
-		let cTimetable = [];
 
 		for (const val of timetable) {
 			let subj = val.su[0];
 			if (subj) {
-				if (classes != '') {
+				if (!!classes) {
 					if (classes.includes(subj.name)) {
 						cTimetable.push(val);
 					}
@@ -79,28 +81,27 @@ module.exports.getTimetableFor = async (date) => {
 		}
 
 		await untisAPI.logout();
-		cTimetable.sort((a, b) => a.startTime - b.starTime);
+		cTimetable.sort((a, b) => a.startTime - b.startTime);
 
-		return cTimetable;
 	} catch (err) {
 		console.log(err);
 		logger.error(err, { time: `${new Date()}` });
 	}
+	return cTimetable;
 };
 
-module.exports.getTimetable = async () => {
+const getTimetable: () => Promise<Lesson[]> = async () => {
 	try {
-		if (untisAPI.validateSession() == false) {
+		if (await untisAPI.validateSession() == false) {
 			await untisAPI.logout();
-			return await this.getTimetable();
+			return await getTimetable();
 		}
 
 		await untisAPI.login();
 
 		let date = new Date();
-		let cTimetable = [];
+		let cTimetable: Lesson[] = [];
 
-		// eslint-disable-next-line no-constant-condition
 		while (true) {
 			try {
 				let timetable = await untisAPI.getOwnClassTimetableFor(date);
@@ -119,7 +120,7 @@ module.exports.getTimetable = async () => {
 				}
 
 				date.setDate(date.getDate() + 1);
-			} catch (err) {
+			} catch (err: any) { // TODO: check what the correct type is there
 				if (err.message == 'Server didn\'t return any result.') {
 					break;
 				} else {
@@ -136,16 +137,17 @@ module.exports.getTimetable = async () => {
 		console.log('');
 
 		await untisAPI.logout();
-		cTimetable.sort((a, b) => a.startTime - b.starTime);
+		cTimetable.sort((a, b) => a.startTime - b.startTime);
 
 		return cTimetable;
 	} catch (err) {
 		console.log(err);
 		logger.error(err, { time: `${new Date()}` });
+		return [];
 	}
 };
 
-module.exports.convertAndInsertTimetable = async (cTimetable) => {
+const convertAndInsertTimetable = async (cTimetable: Lesson[]) => {
 	try {
 		let i = 0;
 		for (const lesson of cTimetable) {
@@ -175,6 +177,7 @@ module.exports.convertAndInsertTimetable = async (cTimetable) => {
 			process.stdout.write(`Inserted ${i} events.\r`);
 			logger.info(`Inserted ${subject} on ${start}`, { time: `${new Date()}` });
 		}
+		// why do we log this?
 		console.log('');
 	} catch (err) {
 		console.log(err);
@@ -182,16 +185,21 @@ module.exports.convertAndInsertTimetable = async (cTimetable) => {
 	}
 };
 
-module.exports.rewrite = async () => {
+const rewrite = async () => {
 	await google.deleteAllEventsFromToday();
 
-	let timetable = await this.getTimetable();
-	await this.convertAndInsertTimetable(timetable);
+	let timetable = await getTimetable();
+	await convertAndInsertTimetable(timetable);
 };
 
-module.exports.update = async (date) => {
+const update = async (date) => {
 	let events = await google.getEventsMin(date);
 	let i = 0;
+	// check if events is undefined
+	if (!events) {
+		console.log('No events found');
+		return;
+	}
 	for (const event of events) {
 		let eventId = event.id;
 		let location = event.location != null ? event.location.split('/') : ['404', 'error'];
@@ -199,10 +207,10 @@ module.exports.update = async (date) => {
 		let oldTeacher = location[1];
 		let oldSubject = event.summary;
 		let oldColorId = event.colorId;
-		let start = new Date(event.start.dateTime);
-		let end = new Date(event.end.dateTime);
+		let start = new Date(event.start!.dateTime!);
+		let end = new Date(event.end!.dateTime!);
 
-		let lessons = await this.getTimetableFor(start);
+		let lessons = await getTimetableFor(start);
 		let lesson = lessons.find(e => e.id == eventId);
 
 		if (lesson) {
@@ -251,7 +259,7 @@ module.exports.update = async (date) => {
 	console.log('Updated all events');
 };
 
-module.exports.addNew = async (oldT, curT) => {
+const addNew = async (oldT, curT) => {
 	if (oldT && curT) {
 		let cur1 = [];
 		let old1 = [];
@@ -271,7 +279,9 @@ module.exports.addNew = async (oldT, curT) => {
 			newEvents.push(event);
 		}
 
-		await this.convertAndInsertTimetable(newEvents);
+		await convertAndInsertTimetable(newEvents);
 	}
 	return;
 };
+
+export default { validateSession, getTimetableFor, getTimetable, convertAndInsertTimetable, rewrite, update, addNew };

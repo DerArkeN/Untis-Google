@@ -1,22 +1,24 @@
-const { startOfDay, endOfDay } = require('date-fns');
-const {google} = require('googleapis');
-const logger = require('./logger');
+import { startOfDay, endOfDay } from 'date-fns';
+import { google } from 'googleapis';
+import logger from './logger';
 require('dotenv').config();
 
-const CREDENTIALS = JSON.parse(process.env.CREDS);
+// Check if there is a better way to configure this then putting
+// json in a env variable
+const CREDENTIALS = JSON.parse(process.env.CREDS!);
 const calendarId = process.env.CALENDAR_ID;
 
 const SCOPES = 'https://www.googleapis.com/auth/calendar';
-const calendar = google.calendar({version : 'v3'});
+const calendar = google.calendar({ version: 'v3' });
 
 const auth = new google.auth.JWT(
 	CREDENTIALS.client_email,
-	null,
+	undefined,
 	CREDENTIALS.private_key,
 	SCOPES
 );
 
-module.exports.insertEvent = async(eventId, subject, room, teacher, colorId, start, end) => {
+const insertEvent = async (eventId, subject, room, teacher, colorId, start, end) => {
 	try {
 		let response = await calendar.events.insert({
 			auth: auth,
@@ -37,18 +39,18 @@ module.exports.insertEvent = async(eventId, subject, room, teacher, colorId, sta
 				}
 			}
 		});
-	}catch(err) {
-		if(err.message == 'The requested identifier already exists.') {
-			await this.update(eventId, subject, room, teacher, colorId, start, end);
-		}else {
+	} catch (err: any) {
+		if (err.message == 'The requested identifier already exists.') {
+			await update(eventId, subject, room, teacher, colorId, start, end);
+		} else {
 			console.log(`Error at insertEvent --> ${err}`);
-			logger.error(err, {time: `${new Date()}`});
+			logger.error(err, { time: `${new Date()}` });
 		}
 	}
 };
 
-module.exports.getEventsMin = async(dateTimeStart) => {
-	if(typeof(dateTimeStart) == Date) dateTimeStart.toISOString();
+const getEventsMin = async (dateTimeStart: Date | string) => {
+	if (typeof (dateTimeStart) !== 'string') dateTimeStart = dateTimeStart.toISOString();
 	try {
 		let response = await calendar.events.list({
 			auth: auth,
@@ -59,17 +61,17 @@ module.exports.getEventsMin = async(dateTimeStart) => {
 			orderBy: 'startTime',
 			timeZone: 'Europe/Berlin'
 		});
-    
+
 		let items = response['data']['items'];
 		return items;
-	} catch(err) {
+	} catch (err) {
 		console.log(`Error at getEvents --> ${err}`);
-		logger.error(err, {time: `${new Date()}`});
+		logger.error(err, { time: `${new Date()}` });
 	}
 };
 
-module.exports.update = async(eventId, subject, room, teacher, colorId, start, end) => {
-	try{
+const update = async (eventId: string, subject: any, room: any, teacher: any, colorId: any, start: any, end: any) => {
+	try {
 		await calendar.events.update({
 			auth: auth,
 			calendarId: calendarId,
@@ -89,38 +91,42 @@ module.exports.update = async(eventId, subject, room, teacher, colorId, start, e
 				}
 			}
 		});
-	}catch(err) {
+	} catch (err) {
 		console.log(`Error at update --> ${err}`);
-		logger.error(err, {time: `${new Date()}`});
+		logger.error(err, { time: `${new Date()}` });
 	}
 };
 
-module.exports.deleteEvent = async (eventId) => {
+const deleteEvent = async (eventId: string) => {
 	try {
-		let response = await calendar.events.delete({
+		await calendar.events.delete({
 			auth: auth,
 			calendarId: calendarId,
 			eventId: eventId
 		});
-	} catch(err) {
+	} catch (err: any) {
 		console.log(`Error at deleteEvent --> ${err}`);
-		logger.error(err, {time: `${new Date()}`});
+		logger.error(err, { time: `${new Date()}` });
 		return 0;
 	}
 };
 
-module.exports.deleteAllEventsFromToday = async () => {
+const deleteAllEventsFromToday = async () => {
 	let i = 0;
-	try{
-		let events = await this.getEventsMin(new Date());
-		for(const val of events) {
-			await this.deleteEvent(val.id);
+	try {
+		let events = await getEventsMin(new Date());
+		if (!events) return;
+		for (const event of events) {
+			await deleteEvent(event.id!);
 			i += 1;
-			process.stdout.write(`Deleted ${i} events.\r`);
+			process.stdout.write(`Deleted event ${event.id}.\r`);
 		}
+		process.stdout.write(`Deleted ${i} events.\r`);
 		console.log('');
-	}catch(err) {
+	} catch (err: any) {
 		console.log(err);
-		logger.error(err, {time: `${new Date()}`});
+		logger.error(err, { time: `${new Date()}` });
 	}
 };
+
+export default { insertEvent, getEventsMin, update, deleteEvent, deleteAllEventsFromToday };
