@@ -14,9 +14,9 @@
   },
   "scripts": {
     "dev": "npx nodemon",
-	"build": "tsc",
-	"start": "npm run build && node dist/index.js",
-	"lint": "eslint . --ext .ts"
+    "build": "tsc",
+    "start": "npm run build && node dist/index.js",
+    "lint": "eslint . --ext .ts"
   },
   "repository": {
     "type": "git",
@@ -29,6 +29,7 @@
   },
   "homepage": "https://github.com/DerArkeN/Untis-Google#readme",
   "devDependencies": {
+    "@types/node": "^20.8.4",
     "eslint": "^8.3.0",
     "nodemon": "^3.0.1",
     "ts-node": "^10.9.1",

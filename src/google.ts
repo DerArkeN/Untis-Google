@@ -1,4 +1,3 @@
-import { startOfDay, endOfDay } from 'date-fns';
 import { google } from 'googleapis';
 import logger from './logger';
 require('dotenv').config();
@@ -18,13 +17,12 @@ const auth = new google.auth.JWT(
 	SCOPES
 );
 
-const insertEvent = async (eventId, subject, room, teacher, colorId, start, end) => {
+const insertEvent = async (eventId: number, subject: string, room: string, teacher: string, colorId: string, start: any, end: any) => {
 	try {
-		let response = await calendar.events.insert({
+		await calendar.events.insert({
 			auth: auth,
 			calendarId: calendarId,
-			eventId: eventId,
-			resource: {
+			requestBody: {
 				'summary': `${subject}`,
 				'colorId': `${colorId}`,
 				'id': `${eventId}`,
@@ -64,19 +62,19 @@ const getEventsMin = async (dateTimeStart: Date | string) => {
 
 		let items = response['data']['items'];
 		return items;
-	} catch (err) {
+	} catch (err: any) {
 		console.log(`Error at getEvents --> ${err}`);
 		logger.error(err, { time: `${new Date()}` });
 	}
 };
 
-const update = async (eventId: string, subject: any, room: any, teacher: any, colorId: any, start: any, end: any) => {
+const update = async (eventId: number, subject: any, room: any, teacher: any, colorId: any, start: any, end: any) => {
 	try {
 		await calendar.events.update({
 			auth: auth,
 			calendarId: calendarId,
-			eventId: eventId,
-			resource: {
+			eventId: String(eventId),
+			requestBody: {
 				'summary': `${subject}`,
 				'colorId': `${colorId}`,
 				'id': `${eventId}`,
@@ -91,7 +89,7 @@ const update = async (eventId: string, subject: any, room: any, teacher: any, co
 				}
 			}
 		});
-	} catch (err) {
+	} catch (err: any) {
 		console.log(`Error at update --> ${err}`);
 		logger.error(err, { time: `${new Date()}` });
 	}
