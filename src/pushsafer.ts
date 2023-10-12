@@ -7,12 +7,12 @@ const p = new push({
 
 const device = process.env.DEVICE;
 
-const sendCancellation = async (subject:any, start:Date) => {
-	if (process.env.PUSHENABLED == 'true') {
+const sendCancellation = async (subject: any, start: Date) => {
+	if(process.env.PUSHENABLED == 'true') {
 		let day = ("0" + start.getDate()).slice(-2);
 		let month = ("0" + (start.getMonth() + 1)).slice(-2);
 
-		let date = `${day}.${month}.`
+		let date = `${day}.${month}.`;
 
 		var msg = {
 			t: `${subject} cancelled.`,
@@ -22,18 +22,18 @@ const sendCancellation = async (subject:any, start:Date) => {
 			d: device
 		};
 
-		p.send(msg, function(err, result) {
-			if (err) {
+		p.send(msg, function (err, result) {
+			if(err) {
 				console.log(err);
 				logger.error(err.message, { time: `${new Date()}` });
 			}
 		});
 	}
 	return;
-}
+};
 
 const sendCrash = async () => {
-	if (process.env.PUSHENABLED == 'true') {
+	if(process.env.PUSHENABLED == 'true') {
 		var msg = {
 			t: `untisgoogle crashed.`,
 			m: `Check logs.`,
@@ -42,14 +42,14 @@ const sendCrash = async () => {
 			d: device
 		};
 
-		p.send(msg, function(err, result) {
-			if (err) {
+		p.send(msg, function (err, result) {
+			if(err) {
 				console.log(err);
 				logger.error(err.message, { time: `${new Date()}` });
 			}
 		});
 	}
 	return;
-}
+};
 
 export default { sendCancellation, sendCrash };

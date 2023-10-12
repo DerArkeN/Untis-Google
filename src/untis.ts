@@ -9,7 +9,7 @@ import push from './pushsafer';
 const untisAPI = new WebUntis(process.env.SCHOOL!, process.env.WEBUSER!, process.env.PASSWORD!, process.env.WEBURL!);
 
 const classes = process.env.CLASSES!.split(", ");
-if (!!classes) {
+if(!!classes) {
 	console.log('Running with classes:', classes);
 } else {
 	console.log('Running with all classes');
@@ -55,7 +55,7 @@ module.exports.getTimetableForToday = async () => {
 const getTimetableFor: (date: Date) => Promise<Lesson[]> = async (date) => {
 	let cTimetable: Lesson[] = [];
 	try {
-		if (await untisAPI.validateSession() == false) {
+		if(await untisAPI.validateSession() == false) {
 			await untisAPI.logout();
 			// Question: why is this function called again?
 			return await getTimetableFor(date);
@@ -67,11 +67,11 @@ const getTimetableFor: (date: Date) => Promise<Lesson[]> = async (date) => {
 		let timetable = await untisAPI.getOwnClassTimetableFor(date);
 
 
-		for (const val of timetable) {
+		for(const val of timetable) {
 			let subj = val.su[0];
-			if (subj) {
-				if (classes) {
-					if (classes.includes(subj.name)) {
+			if(subj) {
+				if(classes) {
+					if(classes.includes(subj.name)) {
 						cTimetable.push(val);
 					}
 				} else {
@@ -83,7 +83,7 @@ const getTimetableFor: (date: Date) => Promise<Lesson[]> = async (date) => {
 		await untisAPI.logout();
 		cTimetable.sort((a, b) => a.startTime - b.startTime);
 
-	} catch (err: any) {
+	} catch(err: any) {
 		console.log(err);
 		logger.error(err, { time: `${new Date()}` });
 	}
@@ -92,7 +92,7 @@ const getTimetableFor: (date: Date) => Promise<Lesson[]> = async (date) => {
 
 const getTimetable: () => Promise<Lesson[]> = async () => {
 	try {
-		if (await untisAPI.validateSession() == false) {
+		if(await untisAPI.validateSession() == false) {
 			await untisAPI.logout();
 			return await getTimetable();
 		}
@@ -102,15 +102,15 @@ const getTimetable: () => Promise<Lesson[]> = async () => {
 		let date = new Date();
 		let cTimetable: Lesson[] = [];
 
-		while (true) {
+		while(true) {
 			try {
 				let timetable = await untisAPI.getOwnClassTimetableFor(date);
 
-				for (const val of timetable) {
+				for(const val of timetable) {
 					let subj = val.su[0];
-					if (subj) {
-						if (classes) {
-							if (classes.includes(subj.name)) {
+					if(subj) {
+						if(classes) {
+							if(classes.includes(subj.name)) {
 								cTimetable.push(val);
 							}
 						} else {
@@ -120,8 +120,8 @@ const getTimetable: () => Promise<Lesson[]> = async () => {
 				}
 
 				date.setDate(date.getDate() + 1);
-			} catch (err: any) { // TODO: check what the correct type is there
-				if (err.message == 'Server didn\'t return any result.') {
+			} catch(err: any) { // TODO: check what the correct type is there
+				if(err.message == 'Server didn\'t return any result.') {
 					break;
 				} else {
 					console.log(err);
@@ -140,7 +140,7 @@ const getTimetable: () => Promise<Lesson[]> = async () => {
 		cTimetable.sort((a, b) => a.startTime - b.startTime);
 
 		return cTimetable;
-	} catch (err: any) {
+	} catch(err: any) {
 		console.log(err);
 		logger.error(err, { time: `${new Date()}` });
 		return [];
@@ -150,7 +150,7 @@ const getTimetable: () => Promise<Lesson[]> = async () => {
 const convertAndInsertTimetable = async (cTimetable: Lesson[]) => {
 	try {
 		let i = 0;
-		for (const lesson of cTimetable) {
+		for(const lesson of cTimetable) {
 			let id = lesson.id;
 			let date = lesson.date;
 			let startTime = lesson.startTime;
@@ -164,8 +164,8 @@ const convertAndInsertTimetable = async (cTimetable: Lesson[]) => {
 
 			let colorId = '2'; //Green
 
-			if (lesson.code) {
-				if (lesson.code == 'cancelled') {
+			if(lesson.code) {
+				if(lesson.code == 'cancelled') {
 					colorId = '4'; //Red
 				}
 			}
@@ -178,7 +178,7 @@ const convertAndInsertTimetable = async (cTimetable: Lesson[]) => {
 			logger.info(`Inserted ${subject} on ${start}`, { time: `${new Date()}` });
 		}
 		console.log('');
-	} catch (err: any) {
+	} catch(err: any) {
 		console.log(err);
 		logger.error(err, { time: `${new Date()}` });
 	}
@@ -195,11 +195,11 @@ const update = async (date: string | Date) => {
 	let events = await google.getEventsMin(date);
 	let i = 0;
 	// check if events is undefined
-	if (!events) {
+	if(!events) {
 		console.log('No events found');
 		return;
 	}
-	for (const event of events) {
+	for(const event of events) {
 		let eventId = event.id;
 		let location = event.location != null ? event.location.split('/') : ['404', 'error'];
 		let oldRoom = location[0];
@@ -212,39 +212,39 @@ const update = async (date: string | Date) => {
 		let lessons = await getTimetableFor(start);
 		let lesson = lessons.find(e => e.id == Number(eventId));
 
-		if (lesson) {
+		if(lesson) {
 			let newSubject = lesson.su[0] != null ? lesson.su[0].longname : "";
 			let newRoom = lesson.ro[0] != null ? lesson.ro[0].name : "";
 			let newTeacher = lesson.te[0] != null ? lesson.te[0].longname : "";
 
 			let newColorId = '2';
-			if (lesson.code) {
-				if (lesson.code == 'cancelled') {
+			if(lesson.code) {
+				if(lesson.code == 'cancelled') {
 					newColorId = '4';
 				}
 			}
 
-			if (!(oldRoom == newRoom)) {
+			if(!(oldRoom == newRoom)) {
 				console.log(`Updated Room: ${newSubject} on ${start}.`);
 				logger.info(`Updated Room: ${newSubject} on ${start}.`, { time: `${new Date()}` });
 			}
-			if (!(oldTeacher == newTeacher)) {
+			if(!(oldTeacher == newTeacher)) {
 				console.log(`Updated Teacher: ${newSubject} on ${start}.`);
 				logger.info(`Updated Teacher: ${newSubject} on ${start}.`, { time: `${new Date()}` });
 			}
-			if (!(oldColorId == newColorId)) {
-				if (newColorId == '4') {
+			if(!(oldColorId == newColorId)) {
+				if(newColorId == '4') {
 					console.log(`Cancelled: ${newSubject} on ${start}.`);
 					logger.info(`Cancelled: ${newSubject} on ${start}.`, { time: `${new Date()}` });
 					push.sendCancellation(newSubject, start);
 				}
 			}
-			if (!(oldSubject == newSubject)) {
+			if(!(oldSubject == newSubject)) {
 				console.log(`Updated Subject: ${newSubject} on ${start}.`);
 				logger.info(`Updated Subject: ${newSubject} on ${start}.`, { time: `${new Date()}` });
 			}
 
-			if (!(oldRoom == newRoom) || !(oldTeacher == newTeacher) || !(oldColorId == newColorId) || !(oldSubject == newSubject)) {
+			if(!(oldRoom == newRoom) || !(oldTeacher == newTeacher) || !(oldColorId == newColorId) || !(oldSubject == newSubject)) {
 				google.update(Number(eventId), newSubject, newRoom, newTeacher, newColorId, start, end);
 			}
 
@@ -258,23 +258,23 @@ const update = async (date: string | Date) => {
 };
 
 const addNew = async (oldT: Lesson[], curT: Lesson[]) => {
-	if (oldT && curT) {
+	if(oldT && curT) {
 		let cur1: number[] = [];
 		let old1: number[] = [];
 		let newEvents: Lesson[] = [];
 
-		for (const event of oldT) {
+		for(const event of oldT) {
 			old1.push(event.id);
 		}
-		for (const event of curT) {
+		for(const event of curT) {
 			cur1.push(event.id);
 		}
 
 		let ids = cur1.filter(x => !old1.includes(x));
 
-		for (const id of ids) {
+		for(const id of ids) {
 			let event = curT.find(x => x.id == id);
-			if (event) newEvents.push(event);
+			if(event) newEvents.push(event);
 		}
 
 		await convertAndInsertTimetable(newEvents);

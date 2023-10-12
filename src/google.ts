@@ -17,28 +17,26 @@ const auth = new google.auth.JWT(
 	SCOPES
 );
 
-const insertEvent = async (eventId: number, subject: string, room: string, teacher: string, colorId: string, start: any, end: any) => {
+const insertEvent = async (eventId: number, subject: string, room: string, teacher: string, colorId: string, start: Date, end: Date) => {
 	try {
 		await calendar.events.insert({
 			auth: auth,
 			calendarId: calendarId,
 			requestBody: {
-				'summary': `${subject}`,
-				'colorId': `${colorId}`,
-				'id': `${eventId}`,
+				'id': String(eventId),
+				'summary': subject,
+				'colorId': colorId,
 				'location': `${room}/${teacher}`,
 				'start': {
-					'dateTime': start,
-					'timeZone': 'Europe/Berlin'
+					'dateTime': start.toDateString(),
 				},
 				'end': {
-					'dateTime': end,
-					'timeZone': 'Europe/Berlin'
+					'dateTime': end.toDateString()
 				}
 			}
 		});
-	} catch (err: any) {
-		if (err.message == 'The requested identifier already exists.') {
+	} catch(err: any) {
+		if(err.message == 'The requested identifier already exists.') {
 			await update(eventId, subject, room, teacher, colorId, start, end);
 		} else {
 			console.log(`Error at insertEvent --> ${err}`);
@@ -47,8 +45,34 @@ const insertEvent = async (eventId: number, subject: string, room: string, teach
 	}
 };
 
+const update = async (eventId: number, subject: string, room: string, teacher: string, colorId: string, start: Date, end: Date) => {
+	try {
+		await calendar.events.update({
+			auth: auth,
+			calendarId: calendarId,
+			eventId: String(eventId),
+			requestBody: {
+				'summary': subject,
+				'colorId': colorId,
+				'location': `${room}/${teacher}`,
+				'start': {
+					'dateTime': start.toISOString(),
+					'timeZone': 'Europe/Berlin'
+				},
+				'end': {
+					'dateTime': end.toISOString(),
+					'timeZone': 'Europe/Berlin'
+				}
+			}
+		});
+	} catch(err: any) {
+		console.log(`Error at update --> ${err}`);
+		logger.error(err, { time: `${new Date()}` });
+	}
+};
+
 const getEventsMin = async (dateTimeStart: Date | string) => {
-	if (typeof (dateTimeStart) !== 'string') dateTimeStart = dateTimeStart.toISOString();
+	if(typeof (dateTimeStart) !== 'string') dateTimeStart = dateTimeStart.toISOString();
 	try {
 		let response = await calendar.events.list({
 			auth: auth,
@@ -62,35 +86,8 @@ const getEventsMin = async (dateTimeStart: Date | string) => {
 
 		let items = response['data']['items'];
 		return items;
-	} catch (err: any) {
+	} catch(err: any) {
 		console.log(`Error at getEvents --> ${err}`);
-		logger.error(err, { time: `${new Date()}` });
-	}
-};
-
-const update = async (eventId: number, subject: any, room: any, teacher: any, colorId: any, start: any, end: any) => {
-	try {
-		await calendar.events.update({
-			auth: auth,
-			calendarId: calendarId,
-			eventId: String(eventId),
-			requestBody: {
-				'summary': `${subject}`,
-				'colorId': `${colorId}`,
-				'id': `${eventId}`,
-				'location': `${room}/${teacher}`,
-				'start': {
-					'dateTime': start,
-					'timeZone': 'Europe/Berlin'
-				},
-				'end': {
-					'dateTime': end,
-					'timeZone': 'Europe/Berlin'
-				}
-			}
-		});
-	} catch (err: any) {
-		console.log(`Error at update --> ${err}`);
 		logger.error(err, { time: `${new Date()}` });
 	}
 };
@@ -102,7 +99,7 @@ const deleteEvent = async (eventId: string) => {
 			calendarId: calendarId,
 			eventId: eventId
 		});
-	} catch (err: any) {
+	} catch(err: any) {
 		console.log(`Error at deleteEvent --> ${err}`);
 		logger.error(err, { time: `${new Date()}` });
 		return 0;
@@ -113,15 +110,15 @@ const deleteAllEventsFromToday = async () => {
 	let i = 0;
 	try {
 		let events = await getEventsMin(new Date());
-		if (!events) return;
-		for (const event of events) {
+		if(!events) return;
+		for(const event of events) {
 			await deleteEvent(event.id!);
 			i += 1;
 			process.stdout.write(`Deleted event ${event.id}.\r`);
 		}
 		process.stdout.write(`Deleted ${i} events.\r`);
 		console.log('');
-	} catch (err: any) {
+	} catch(err: any) {
 		console.log(err);
 		logger.error(err, { time: `${new Date()}` });
 	}
