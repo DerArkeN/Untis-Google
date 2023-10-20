@@ -8,11 +8,12 @@ import push from './pushsafer';
 
 const untisAPI = new WebUntis(process.env.SCHOOL!, process.env.WEBUSER!, process.env.PASSWORD!, process.env.WEBURL!);
 
-const classes = process.env.CLASSES!.split(", ");
-if(!!classes) {
-	console.log('Running with classes:', classes);
-} else {
+let classes: String[] | undefined = process.env.CLASSES!.split(", ");
+if(classes.length == 1 && classes[0] == '') {
+	classes = undefined;
 	console.log('Running with all classes');
+} else {
+	console.log('Running with classes:', classes);
 }
 
 const validateSession = async () => {
