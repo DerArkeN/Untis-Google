@@ -8,7 +8,6 @@
     "dotenv": "^10.0.0",
     "googleapis": "^88.2.0",
     "pushsafer-notifications": "^0.1.9",
-    "reps": "^1.0.6",
     "webuntis": "^1.15.2",
     "winston": "^3.3.3"
   },
@@ -33,6 +32,7 @@
     "eslint": "^8.3.0",
     "nodemon": "^3.0.1",
     "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.2.2"
   }
 }

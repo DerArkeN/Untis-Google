@@ -6,7 +6,7 @@ import google from './google';
 import logger from './logger';
 import push from './pushsafer';
 
-const untisAPI = new WebUntis(process.env.SCHOOL!, process.env.WEBUSER!, process.env.PASSWORD!, process.env.WEBURL!);
+let untisAPI = new WebUntis(process.env.SCHOOL!, process.env.WEBUSER!, process.env.PASSWORD!, process.env.WEBURL!);
 
 let classes: String[] | undefined = process.env.CLASSES!.split(", ");
 if(classes.length == 1 && classes[0] == '') {
@@ -19,39 +19,6 @@ if(classes.length == 1 && classes[0] == '') {
 const validateSession = async () => {
 	return await untisAPI.validateSession();
 };
-
-/* Debug Method
-module.exports.getTimetableForToday = async () => {
-	try {	
-		if(untisAPI.validateSession() == false) {
-			return await this.getTimetableForToday();
-		}
-
-		await untisAPI.login();
-	    
-		let timetable = await untisAPI.getOwnClassTimetableForToday();
-
-		let cTimetable = [];
-
-		for(const val of timetable) {
-			let subj = val.su[0];
-			if(subj) {
-				if(classes.includes(subj.name)) {
-					cTimetable.push(val);
-				}
-			}
-		}
-
-		await untisAPI.logout();
-		cTimetable.sort((a, b) => a.startTime - b.starTime);
-		
-		return cTimetable;
-	}catch(err) {
-		console.log(err);
-		logger.error(err, {time: `${new Date()}`});
-	}
-};
- */
 
 const getTimetableFor: (date: Date) => Promise<Lesson[]> = async (date) => {
 	let cTimetable: Lesson[] = [];
