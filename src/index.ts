@@ -1,36 +1,35 @@
-import untis from './untis';
+require('dotenv').config();
+
+import Untis from './untis';
 import logger from './logger';
 import push from './pushsafer';
 
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
-const run = async () => {
-	console.log('Started untis-google.');
+const run = async (client: Untis) => {
+	await client.start();
 
 	let args = process.argv.slice(2);
-	if(args.includes('rewrite')) await untis.rewrite();
-	if(args.includes('update')) await untis.update(new Date());
+	if(args.includes('rewrite')) await client.rewrite();
+	if(args.includes('update')) await client.update(new Date());
 
-	let oldT = await untis.getTimetable();
+	let oldT = await client.getTimetable();
 
 	let running = false;
 	let intervalID = setInterval(async () => {
 		if(running) return;
-		if(!untis) return;
 		running = true;
 
 		let success = false;
 		let retry = 0;
 		while(!success) {
 			try {
-				var curT = await untis.getTimetable();
+				var curT = await client.getTimetable();
 
 				// Check if update occured
 				if(JSON.stringify(oldT) !== JSON.stringify(curT)) {
 					logger.info('Update received', { time: `${new Date()}` });
 					console.log('Update received');
-					await untis.addNew(oldT, curT);
-					await untis.update(new Date());
+					await client.addNew(oldT, curT);
+					await client.update(new Date());
 					oldT = curT;
 				}
 
@@ -47,13 +46,19 @@ const run = async () => {
 					push.sendCrash();
 					break;
 				}
-				await delay(10000);
+				await wait_seconds(60);
 				retry++;
 			}
 		}
 	}, parseInt(process.env.INTERVAL_MINUTES || "30") * 60 * 1000);
 };
 
+const wait_seconds = (seconds: number) => new Promise(resolve => setTimeout(resolve, seconds * 1000));
+
 (async () => {
-	run();
+	const client = new Untis(process.env.SCHOOL!, process.env.WEBURL!, process.env.WEBUSER!, process.env.PASSWORD!);
+	const classes = process.env.CLASSES!.split(", ");
+	if(classes.length != 1 && classes[0] != '') client.set_classes(classes);
+
+	run(client);
 })();

@@ -28,10 +28,12 @@ const insertEvent = async (eventId: number, subject: string, room: string, teach
 				'colorId': colorId,
 				'location': `${room}/${teacher}`,
 				'start': {
-					'dateTime': start.toDateString(),
+					'dateTime': start.toISOString(),
+					'timeZone': 'Europe/Berlin'
 				},
 				'end': {
-					'dateTime': end.toDateString()
+					'dateTime': end.toISOString(),
+					'timeZone': 'Europe/Berlin'
 				}
 			}
 		});
@@ -111,12 +113,12 @@ const deleteAllEventsFromToday = async () => {
 	try {
 		let events = await getEventsMin(new Date());
 		if(!events) return;
+		let events_length = events.length;
 		for(const event of events) {
 			await deleteEvent(event.id!);
 			i += 1;
-			process.stdout.write(`Deleted event ${event.id}.\r`);
+			process.stdout.write(`Deleted event ${event.id} (${i}/${events_length}).\r`);
 		}
-		process.stdout.write(`Deleted ${i} events.\r`);
 		console.log('');
 	} catch(err: any) {
 		console.log(err);
