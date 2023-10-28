@@ -2,6 +2,7 @@ require('dotenv').config();
 
 import Untis from './untis';
 import push from './pushsafer';
+import fs from 'fs';
 
 const run = async (client: Untis) => {
 	await client.start();
@@ -10,9 +11,16 @@ const run = async (client: Untis) => {
 	if(args.includes('rewrite')) await client.rewrite();
 	if(args.includes('update')) await client.update();
 
-	let oldT = await client.getTimetable();
+	let oldT: any = [];
+	try {
+		oldT = JSON.parse(fs.readFileSync('./old_timetable.json', 'utf8'));
+	} catch(err) {
+		oldT = await client.getTimetable();
+		fs.writeFileSync('./old_timetable.json', JSON.stringify(oldT));
+	}
 
 	let running = false;
+	let interval = parseInt(process.env.INTERVAL_MINUTES || "30") * 60 * 1000;
 	let intervalID = setInterval(async () => {
 		if(running) return;
 		running = true;
@@ -23,7 +31,6 @@ const run = async (client: Untis) => {
 			try {
 				var curT = await client.getTimetable();
 
-				// Check if update occured
 				if(JSON.stringify(oldT) !== JSON.stringify(curT)) {
 					client.log('Update received');
 					await client.addNew(oldT, curT);
@@ -46,7 +53,7 @@ const run = async (client: Untis) => {
 				retry++;
 			}
 		}
-	}, parseInt(process.env.INTERVAL_MINUTES || "30") * 60 * 1000);
+	}, interval);
 };
 
 const wait_seconds = (seconds: number) => new Promise(resolve => setTimeout(resolve, seconds * 1000));
