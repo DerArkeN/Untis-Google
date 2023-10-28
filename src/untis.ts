@@ -1,4 +1,5 @@
 import { parse, startOfDay } from 'date-fns';
+const progress = require('cli-progress');
 import WebUntis, { Lesson, LoginSessionInformations } from 'webuntis';
 import google from './google';
 import logger from './logger';
@@ -29,13 +30,14 @@ export default class UntisClient {
 
 	public async start() {
 		await this.login();
-		console.log('Succesfully started Untis Client');
+		this.log('Succesfully started Untis Client.');
 
 		if(this.classes) {
-			console.log('Running with classes:', this.classes);
+			this.log(`Running with classes:' ${this.classes}.`);
 		} else {
-			console.log('Running with all classes');
+			this.log('Running with all classes.');
 		}
+		this.log(`Running with a range of ${this.range} days.`);
 	}
 
 	public set_classes(classes: String[]) {
@@ -50,8 +52,7 @@ export default class UntisClient {
 		try {
 			await this.untisAPI.login();
 		} catch(err: any) {
-			console.log(`Error at login --> ${err}`);
-			logger.error(err, { time: `${new Date()}` });
+			this.log(`login --> ${err}`, 'error');
 		}
 	}
 
@@ -59,8 +60,22 @@ export default class UntisClient {
 		try {
 			await this.untisAPI.logout();
 		} catch(err: any) {
-			console.log(`Error at logout --> ${err}`);
-			logger.error(err, { time: `${new Date()}` });
+			this.log(`logout --> ${err}`, 'error');
+		}
+	}
+
+	public log(message: string, type: 'info' | 'error' = 'info') {
+		switch(type) {
+			case 'info':
+				message = `Untis: ${message}`;
+				console.log(message);
+				logger.info(message, { time: `${new Date()}` });
+				break;
+			case 'error':
+				message = `Untis Error: ${message}`;
+				console.log(message);
+				logger.error(message, { time: `${new Date()}` });
+				break;
 		}
 	}
 
@@ -83,8 +98,7 @@ export default class UntisClient {
 
 			cTimetable.sort((a, b) => a.startTime - b.startTime);
 		} catch(err: any) {
-			console.log(`Error at getTimatetableFor --> ${err}`);
-			logger.error(err, { time: `${new Date()}` });
+			this.log(`getTimetableFor --> ${err}`, 'error');
 		}
 		return cTimetable;
 	};
@@ -108,21 +122,25 @@ export default class UntisClient {
 				re_timetable = timetable;
 			}
 
-			console.log(`Gathered ${re_timetable.length} timetables.\r`);
-			logger.info(`Gathered ${re_timetable.length} timetables.`, { time: `${new Date()}` });
-
-			re_timetable.sort((a, b) => a.startTime - b.startTime);
+			this.log(`Gathered ${re_timetable.length} lessons.`);
 		} catch(err: any) {
-			console.log(err);
-			logger.error(err, { time: `${new Date()}` });
+			this.log(`getTimetable --> ${err}`, 'error');
 		}
+		re_timetable.sort((a, b) => a.startTime - b.startTime);
 		return re_timetable;
 	};
 
-	public async convertAndInsertTimetable(cTimetable: Lesson[]) {
+	public async convertAndInsertTimetable(timetable: Lesson[]) {
 		try {
+			const bar = new progress.SingleBar({
+				format: 'Untis: Inserting | {bar} | {percentage}% | {value}/{total} Events',
+				barCompleteChar: '\u2588',
+				barIncompleteChar: '\u2591',
+				hideCursor: true
+			});
+			bar.start(timetable.length);
 			let i = 0;
-			for(const lesson of cTimetable) {
+			for(const lesson of timetable) {
 				let id = lesson.id;
 				let date = lesson.date;
 				let startTime = lesson.startTime;
@@ -145,31 +163,37 @@ export default class UntisClient {
 				await google.insertEvent(id, subject, room, teacher, colorId, start, end);
 
 				i += 1;
-
-				process.stdout.write(`Inserted ${i} events.\r`);
-				logger.info(`Inserted ${subject} on ${start}`, { time: `${new Date()}` });
+				bar.increment();
 			}
-			console.log('');
+			bar.stop();
+			this.log(`Inserted ${i} new events.`);
 		} catch(err: any) {
-			console.log(err);
-			logger.error(err, { time: `${new Date()}` });
+			this.log(`convertAndInsertTimetable --> ${err}`, 'error');
 		}
 	};
 
 	public async rewrite() {
-		await google.deleteAllEventsFromToday();
+		await google.deleteAllEvents();
 
 		let timetable = await this.getTimetable();
 		await this.convertAndInsertTimetable(timetable);
 	};
 
-	public async update(date: string | Date) {
-		let events = await google.getEventsMin(date);
-		if(!events) {
-			console.log('No events found');
-			return;
-		}
+	public async update() {
+		let rangeStart = new Date();
+		let rangeEnd = new Date();
+		rangeEnd.setDate(rangeStart.getDate() + this.range);
+		let events = await google.getEvents(rangeStart, rangeEnd);
+		if(!events) return;
+		const bar = new progress.SingleBar({
+			format: 'Untis: Checking | {bar} | {percentage}% | {value}/{total} Events',
+			barCompleteChar: '\u2588',
+			barIncompleteChar: '\u2591',
+			hideCursor: true
+		});
+		bar.start(events.length);
 		let i = 0;
+		let out_message = "";
 		for(const event of events) {
 			let eventId = event.id;
 			let location = event.location != null ? event.location.split('/') : ['404', 'error'];
@@ -196,23 +220,19 @@ export default class UntisClient {
 				}
 
 				if(!(oldRoom == newRoom)) {
-					console.log(`Updated Room: ${newSubject} on ${start}.`);
-					logger.info(`Updated Room: ${newSubject} on ${start}.`, { time: `${new Date()}` });
+					out_message = out_message + `\n-Updated Room ${newSubject} on ${start}.`;
 				}
 				if(!(oldTeacher == newTeacher)) {
-					console.log(`Updated Teacher: ${newSubject} on ${start}.`);
-					logger.info(`Updated Teacher: ${newSubject} on ${start}.`, { time: `${new Date()}` });
+					out_message = out_message + `\n-Updated Teacher ${newSubject} on ${start}.`;
 				}
 				if(!(oldColorId == newColorId)) {
 					if(newColorId == '4') {
-						console.log(`Cancelled: ${newSubject} on ${start}.`);
-						logger.info(`Cancelled: ${newSubject} on ${start}.`, { time: `${new Date()}` });
+						out_message = out_message + `\n-Cancelled ${newSubject} on ${start}.`;
 						push.sendCancellation(newSubject, start);
 					}
 				}
 				if(!(oldSubject == newSubject)) {
-					console.log(`Updated Subject: ${newSubject} on ${start}.`);
-					logger.info(`Updated Subject: ${newSubject} on ${start}.`, { time: `${new Date()}` });
+					out_message = out_message + `\n-Updated Subject ${newSubject} on ${start}.`;
 				}
 
 				if(!(oldRoom == newRoom) || !(oldTeacher == newTeacher) || !(oldColorId == newColorId) || !(oldSubject == newSubject)) {
@@ -220,12 +240,12 @@ export default class UntisClient {
 				}
 
 				i++;
-				process.stdout.write(`Checked ${i}/${events.length} events\r`);
+				bar.increment();
 			}
 		}
-		console.log('');
-		logger.info('Updated all events', { time: `${new Date()}` });
-		console.log('Updated all events');
+		bar.stop();
+		this.log(out_message);
+		this.log('Updated all events.');
 	};
 
 	public async addNew(oldT: Lesson[], curT: Lesson[]) {

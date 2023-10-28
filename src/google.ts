@@ -1,6 +1,7 @@
-import { google } from 'googleapis';
+import { calendar_v3, google } from 'googleapis';
 import logger from './logger';
 require('dotenv').config();
+const progress = require('cli-progress');
 
 // Check if there is a better way to configure this then putting
 // json in a env variable
@@ -73,15 +74,15 @@ const update = async (eventId: number, subject: string, room: string, teacher: s
 	}
 };
 
-const getEventsMin = async (dateTimeStart: Date | string) => {
-	if(typeof (dateTimeStart) !== 'string') dateTimeStart = dateTimeStart.toISOString();
+const getEvents = async (rangeStart: Date, rangeEnd: Date | undefined = undefined): Promise<calendar_v3.Schema$Event[] | undefined> => {
 	try {
 		let response = await calendar.events.list({
 			auth: auth,
 			calendarId: calendarId,
 			singleEvents: true,
 			maxResults: 1000,
-			timeMin: dateTimeStart,
+			timeMin: rangeStart.toISOString(),
+			timeMax: rangeEnd ? rangeEnd.toISOString() : undefined,
 			orderBy: 'startTime',
 			timeZone: 'Europe/Berlin'
 		});
@@ -108,22 +109,28 @@ const deleteEvent = async (eventId: string) => {
 	}
 };
 
-const deleteAllEventsFromToday = async () => {
+const deleteAllEvents = async () => {
 	let i = 0;
+	const bar = new progress.SingleBar({
+		format: 'Google: Deleting | {bar} | {percentage}% | {value}/{total} Events',
+		barCompleteChar: '\u2588',
+		barIncompleteChar: '\u2591',
+		hideCursor: true
+	});
 	try {
-		let events = await getEventsMin(new Date());
+		let events = await getEvents(new Date());
 		if(!events) return;
-		let events_length = events.length;
+		bar.start(events.length);
 		for(const event of events) {
 			await deleteEvent(event.id!);
 			i += 1;
-			process.stdout.write(`Deleted event ${event.id} (${i}/${events_length}).\r`);
+			bar.increment();
 		}
-		console.log('');
+		bar.stop();
 	} catch(err: any) {
 		console.log(err);
 		logger.error(err, { time: `${new Date()}` });
 	}
 };
 
-export default { insertEvent, getEventsMin, update, deleteEvent, deleteAllEventsFromToday };
+export default { insertEvent, getEvents, update, deleteEvent, deleteAllEvents };

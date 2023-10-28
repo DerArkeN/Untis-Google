@@ -1,7 +1,6 @@
 require('dotenv').config();
 
 import Untis from './untis';
-import logger from './logger';
 import push from './pushsafer';
 
 const run = async (client: Untis) => {
@@ -9,7 +8,7 @@ const run = async (client: Untis) => {
 
 	let args = process.argv.slice(2);
 	if(args.includes('rewrite')) await client.rewrite();
-	if(args.includes('update')) await client.update(new Date());
+	if(args.includes('update')) await client.update();
 
 	let oldT = await client.getTimetable();
 
@@ -26,10 +25,9 @@ const run = async (client: Untis) => {
 
 				// Check if update occured
 				if(JSON.stringify(oldT) !== JSON.stringify(curT)) {
-					logger.info('Update received', { time: `${new Date()}` });
-					console.log('Update received');
+					client.log('Update received');
 					await client.addNew(oldT, curT);
-					await client.update(new Date());
+					await client.update();
 					oldT = curT;
 				}
 
@@ -37,12 +35,10 @@ const run = async (client: Untis) => {
 				running = false;
 			} catch(err: any) {
 				if(retry > 10) {
-					console.log(err);
-					logger.error(err, { time: `${new Date()}` });
+					client.log(`run --> ${err}`, 'error');
 					running = false;
 					clearInterval(intervalID);
-					logger.info(`Stopped after ${retry} tries.`, { time: `${new Date()}` });
-					console.log(`Stopped after ${retry} tries.`);
+					client.log(`Stopped after ${retry} tries.`);
 					push.sendCrash();
 					break;
 				}
@@ -59,6 +55,7 @@ const wait_seconds = (seconds: number) => new Promise(resolve => setTimeout(reso
 	const client = new Untis(process.env.SCHOOL!, process.env.WEBURL!, process.env.WEBUSER!, process.env.PASSWORD!);
 	const classes = process.env.CLASSES!.split(", ");
 	if(classes.length != 1 && classes[0] != '') client.set_classes(classes);
+	client.set_range(parseInt(process.env.RANGE_DAYS!));
 
 	run(client);
 })();
