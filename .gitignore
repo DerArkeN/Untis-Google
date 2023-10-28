@@ -110,3 +110,5 @@ dist
 .replit
 # ingore build
 build/
+
+old_timetable.json
