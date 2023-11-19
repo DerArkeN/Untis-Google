@@ -30,7 +30,9 @@ const check_cycle = async (client: Untis, intervalID?: NodeJS.Timeout) => {
 			let google_timetable = await client.get_timetable_from_google();
 			let untis_timetable = await client.get_timetable_from_untis();
 
-			await client.sync(google_timetable!, untis_timetable!);
+			if(google_timetable && untis_timetable) {
+				await client.sync(google_timetable, untis_timetable);
+			}
 
 			success = true;
 			running = false;
