@@ -1,5 +1,5 @@
 import { calendar_v3, google } from 'googleapis';
-import logger from './logger';
+import Logger from './logger';
 require('dotenv').config();
 const progress = require('cli-progress');
 
@@ -18,13 +18,15 @@ const auth = new google.auth.JWT(
 	SCOPES
 );
 
-const insertEvent = async (eventId: number, subject: string, room: string, teacher: string, colorId: string, start: Date, end: Date) => {
+const logger = new Logger('Google');
+
+const insert_event = async (eventId: string, subject: string, room: string, teacher: string, colorId: string, start: Date, end: Date) => {
 	try {
 		await calendar.events.insert({
 			auth: auth,
 			calendarId: calendarId,
 			requestBody: {
-				'id': String(eventId),
+				'id': eventId,
 				'summary': subject,
 				'colorId': colorId,
 				'location': `${room}/${teacher}`,
@@ -42,18 +44,17 @@ const insertEvent = async (eventId: number, subject: string, room: string, teach
 		if(err.message == 'The requested identifier already exists.') {
 			await update(eventId, subject, room, teacher, colorId, start, end);
 		} else {
-			console.log(`Error at insertEvent --> ${err}`);
-			logger.error(err, { time: `${new Date()}` });
+			logger.error(`insertEvent --> ${err}`);
 		}
 	}
 };
 
-const update = async (eventId: number, subject: string, room: string, teacher: string, colorId: string, start: Date, end: Date) => {
+const update = async (eventId: string, subject: string, room: string, teacher: string, colorId: string, start: Date, end: Date) => {
 	try {
 		await calendar.events.update({
 			auth: auth,
 			calendarId: calendarId,
-			eventId: String(eventId),
+			eventId: eventId,
 			requestBody: {
 				'summary': subject,
 				'colorId': colorId,
@@ -69,12 +70,12 @@ const update = async (eventId: number, subject: string, room: string, teacher: s
 			}
 		});
 	} catch(err: any) {
-		console.log(`Error at update --> ${err}`);
-		logger.error(err, { time: `${new Date()}` });
+		logger.error(`update --> ${err}`);
+
 	}
 };
 
-const getEvents = async (rangeStart: Date, rangeEnd: Date | undefined = undefined): Promise<calendar_v3.Schema$Event[] | undefined> => {
+const get_events = async (rangeStart: Date, rangeEnd: Date | undefined = undefined): Promise<calendar_v3.Schema$Event[] | undefined> => {
 	try {
 		let response = await calendar.events.list({
 			auth: auth,
@@ -90,12 +91,11 @@ const getEvents = async (rangeStart: Date, rangeEnd: Date | undefined = undefine
 		let items = response['data']['items'];
 		return items;
 	} catch(err: any) {
-		console.log(`Error at getEvents --> ${err}`);
-		logger.error(err, { time: `${new Date()}` });
+		logger.error(`get_events --> ${err}`);
 	}
 };
 
-const deleteEvent = async (eventId: string) => {
+const delete_event = async (eventId: string) => {
 	try {
 		await calendar.events.delete({
 			auth: auth,
@@ -103,13 +103,12 @@ const deleteEvent = async (eventId: string) => {
 			eventId: eventId
 		});
 	} catch(err: any) {
-		console.log(`Error at deleteEvent --> ${err}`);
-		logger.error(err, { time: `${new Date()}` });
+		logger.error(`delete_event --> ${err}`);
 		return 0;
 	}
 };
 
-const deleteAllEvents = async () => {
+const delete_all_events = async () => {
 	let i = 0;
 	const bar = new progress.SingleBar({
 		format: 'Google: Deleting | {bar} | {percentage}% | {value}/{total} Events',
@@ -118,19 +117,18 @@ const deleteAllEvents = async () => {
 		hideCursor: true
 	});
 	try {
-		let events = await getEvents(new Date());
+		let events = await get_events(new Date());
 		if(!events) return;
 		bar.start(events.length);
 		for(const event of events) {
-			await deleteEvent(event.id!);
+			await delete_event(event.id!);
 			i += 1;
 			bar.increment();
 		}
 		bar.stop();
 	} catch(err: any) {
-		console.log(err);
-		logger.error(err, { time: `${new Date()}` });
+		logger.error(`delete_all_events --> ${err}`);
 	}
 };
 
-export default { insertEvent, getEvents, update, deleteEvent, deleteAllEvents };
+export default { insert_event, get_events, update, delete_event, delete_all_events, calendar_v3 };
