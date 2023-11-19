@@ -108,3 +108,7 @@ dist
 .eslintrc.js
 
 .replit
+# ingore build
+build/
+
+old_timetable.json
