@@ -1,7 +1,6 @@
 import { calendar_v3, google } from 'googleapis';
 import Logger from './logger';
 require('dotenv').config();
-const progress = require('cli-progress');
 
 // Check if there is a better way to configure this then putting
 // json in a env variable
@@ -110,12 +109,7 @@ const delete_event = async (eventId: string) => {
 
 const delete_all_events = async () => {
 	let i = 0;
-	const bar = new progress.SingleBar({
-		format: 'Google: Deleting | {bar} | {percentage}% | {value}/{total} Events',
-		barCompleteChar: '\u2588',
-		barIncompleteChar: '\u2591',
-		hideCursor: true
-	});
+	const bar = logger.create_bar('Deleting');
 	try {
 		let events = await get_events(new Date());
 		if(!events) return;
@@ -131,4 +125,4 @@ const delete_all_events = async () => {
 	}
 };
 
-export default { insert_event, get_events, update, delete_event, delete_all_events, calendar_v3 };
+export default { insert_event, get_events, update, delete_event, delete_all_events };

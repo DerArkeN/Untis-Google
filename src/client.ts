@@ -51,6 +51,7 @@ export default class Client {
 			await this.untisAPI.login();
 		} catch(err: any) {
 			this.logger.error(`login --> ${err}`);
+			throw err;
 		}
 	}
 
@@ -59,6 +60,7 @@ export default class Client {
 			await this.untisAPI.logout();
 		} catch(err: any) {
 			this.logger.error(`logout --> ${err}`);
+			throw err;
 		}
 	}
 
@@ -171,7 +173,7 @@ export default class Client {
 					await this.update_lesson(lesson);
 				}
 			} else {
-				sync_message += `\n-Added: ${lesson.subject}. (${lesson.start.toLocaleDateString()}.)`;
+				sync_message += `\n-Added: ${lesson.subject}. (${lesson.start.toLocaleDateString()})`;
 				await this.add_lesson(lesson);
 			}
 			bar.increment();
@@ -181,7 +183,7 @@ export default class Client {
 		for(const lesson of google_timetable) {
 			let untis_lesson = untis_timetable.find(x => x.eventId == lesson.eventId);
 			if(!untis_lesson) {
-				sync_message += `\n-Deleted: ${lesson.subject}. (${lesson.start.toLocaleDateString()}.)`;
+				sync_message += `\n-Deleted: ${lesson.subject}. (${lesson.start.toLocaleDateString()})`;
 				await this.delete_lesson(lesson);
 			}
 		}
