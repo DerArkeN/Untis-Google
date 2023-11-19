@@ -55,7 +55,7 @@ const wait_seconds = (seconds: number) => new Promise(resolve => setTimeout(reso
 	const client = new Untis(process.env.SCHOOL!, process.env.WEBURL!, process.env.WEBUSER!, process.env.PASSWORD!);
 	const classes = process.env.CLASSES!.split(", ");
 	if(classes.length != 1 && classes[0] != '') client.set_classes(classes);
-	client.set_range(parseInt(process.env.RANGE_DAYS!));
+	if(process.env.RANGE_DAYS) client.set_range(parseInt(process.env.RANGE_DAYS));
 
 	run(client);
 })();

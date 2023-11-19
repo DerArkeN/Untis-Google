@@ -14,8 +14,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "start": "npm run build && node build/index.js",
-    "lint": "eslint . --ext .ts"
+    "start": "npm run build && node build/index.js"
   },
   "repository": {
     "type": "git",
