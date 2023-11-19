@@ -28,6 +28,7 @@ export default class Client {
 	public async start() {
 		await this.login();
 		this.logger.info('Succesfully started Untis Client.');
+		await this.logout();
 
 		if(this.classes) {
 			this.logger.info(`Running with classes:' ${this.classes}.`);
@@ -67,7 +68,9 @@ export default class Client {
 		let rangeEnd = new Date();
 		rangeEnd.setDate(rangeStart.getDate() + this.range);
 		try {
+			await this.login();
 			let timetable = await this.untisAPI.getOwnClassTimetableForRange(rangeStart, rangeEnd);
+			await this.logout();
 
 			for(const val of timetable) {
 				if(this.classes) {
@@ -86,7 +89,7 @@ export default class Client {
 
 			this.logger.info(`Got ${re_timetable.length} lessons from Untis.`);
 		} catch(err: any) {
-			this.logger.error(`getTimetable --> ${err}`);
+			this.logger.error(`get_timetable_from_untis --> ${err}`);
 		}
 		return re_timetable;
 	};
