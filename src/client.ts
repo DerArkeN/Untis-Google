@@ -1,5 +1,5 @@
 import WebUntis from 'webuntis';
-import LessonMO, { color_green, color_red, cancelled_state } from './lesson';
+import LessonMO, { color_green, color_red, state_cancelled } from './lesson';
 import google from './google';
 import Logger from './logger';
 
@@ -118,7 +118,7 @@ export default class Client {
 			bar.start(timetable.length);
 			let i = 0;
 			for(const lesson of timetable) {
-				let colorId = lesson.lesson_state == cancelled_state ? color_red : color_green;
+				let colorId = lesson.lesson_state == state_cancelled ? color_red : color_green;
 				await google.insert_event(lesson.eventId!, lesson.subject!, lesson.room!, lesson.teacher!, colorId, lesson.start!, lesson.end!);
 
 				i += 1;
@@ -140,13 +140,13 @@ export default class Client {
 
 	private async update_lesson(lesson: LessonMO) {
 		if(!lesson) return;
-		let colorId = lesson.lesson_state == cancelled_state ? color_red : color_green;
+		let colorId = lesson.lesson_state == state_cancelled ? color_red : color_green;
 		await google.update(lesson.eventId!, lesson.subject!, lesson.room!, lesson.teacher!, colorId, lesson.start!, lesson.end!);
 	};
 
 	private async add_lesson(lesson: LessonMO) {
 		if(!lesson) return;
-		let colorId = lesson.lesson_state == cancelled_state ? color_red : color_green;
+		let colorId = lesson.lesson_state == state_cancelled ? color_red : color_green;
 		await google.insert_event(lesson.eventId!, lesson.subject!, lesson.room!, lesson.teacher!, colorId, lesson.start!, lesson.end!);
 	};
 

@@ -44,16 +44,12 @@ export default class Logger {
 		});
 	}
 
-	public push_cancellation(subject: any, start: Date) {
+	public push_cancellation(subject: any, date_string: String) {
 		if(process.env.PUSHENABLED != 'true') return;
-		let day = ("0" + start.getDate()).slice(-2);
-		let month = ("0" + (start.getMonth() + 1)).slice(-2);
-
-		let date = `${day}.${month}.`;
 
 		var msg = {
 			t: `${subject} cancelled.`,
-			m: `${subject} on ${date} cancelled`,
+			m: `${subject} on ${date_string} cancelled`,
 			i: '95',
 			c: '#008b02',
 			d: device

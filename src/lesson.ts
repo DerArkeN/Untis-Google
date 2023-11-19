@@ -1,14 +1,17 @@
 import { Lesson } from 'webuntis';
 import { calendar_v3 } from 'googleapis';
+import Logger from './logger';
 const datefns = require('date-fns');
 
 const color_green = '2';
 const color_red = '4';
 const state_cancelled = 'cancelled';
 
-export { color_green, color_red, state_cancelled as cancelled_state };
+export { color_green, color_red, state_cancelled };
 
 export default class LessonMO {
+    protected readonly logger = new Logger('Lesson');
+
     public eventId: string = '';
     public subject: string = '';
     public room: string = '';
@@ -80,6 +83,7 @@ export default class LessonMO {
         if(!(old_state == new_state)) {
             if(new_state == state_cancelled) {
                 out_message += `\n-Cancelled ${new_subject} on ${start}.`;
+                this.logger.push_cancellation(new_subject, start);
             }
         }
         if(!(old_subject == new_subject)) {
