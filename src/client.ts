@@ -1,7 +1,8 @@
 import WebUntis from 'webuntis';
 import LessonMO, { color_green, color_red, state_cancelled } from './lesson';
-import google from './google';
+import Google from './GoogleAPI';
 import Logger from './logger';
+import config from '../user/config.json';
 
 export default class Client {
 	public readonly school: string;
@@ -9,12 +10,13 @@ export default class Client {
 	public readonly password: string;
 	public readonly weburl: string;
 
-	protected readonly logger = new Logger('Client');
+	private readonly logger = new Logger('Client');
+	private readonly google = new Google(config.google.calendarId);
 
-	protected classes: String[] | undefined;
-	protected range: number = 30;
+	private classes: String[] | undefined;
+	private range: number = 30;
 
-	protected untisAPI: WebUntis;
+	private untisAPI: WebUntis;
 
 	constructor(school: string, weburl: string, webuser: string, password: string) {
 		this.school = school;
@@ -46,7 +48,7 @@ export default class Client {
 		this.range = days;
 	}
 
-	protected async login() {
+	private async login() {
 		try {
 			await this.untisAPI.login();
 		} catch(err: any) {
@@ -55,7 +57,7 @@ export default class Client {
 		}
 	}
 
-	protected async logout() {
+	private async logout() {
 		try {
 			await this.untisAPI.logout();
 		} catch(err: any) {
@@ -102,7 +104,7 @@ export default class Client {
 		let rangeEnd = new Date();
 		rangeEnd.setDate(rangeStart.getDate() + this.range);
 
-		let events = await google.get_events(rangeStart, rangeEnd);
+		let events = await this.google.get_events(rangeStart, rangeEnd);
 		for(const event of events!) {
 			re_timetable.push(new LessonMO(undefined, event));
 		}
@@ -119,7 +121,7 @@ export default class Client {
 			let i = 0;
 			for(const lesson of timetable) {
 				let colorId = lesson.lesson_state == state_cancelled ? color_red : color_green;
-				await google.insert_event(lesson.eventId!, lesson.subject!, lesson.room!, lesson.teacher!, colorId, lesson.start!, lesson.end!);
+				await this.google.insert_event(lesson.eventId!, lesson.subject!, lesson.room!, lesson.teacher!, colorId, lesson.start!, lesson.end!);
 
 				i += 1;
 				bar.increment();
@@ -132,7 +134,7 @@ export default class Client {
 	};
 
 	public async rewrite() {
-		await google.delete_all_events();
+		await this.google.delete_all_events();
 
 		let timetable = await this.get_timetable_from_untis();
 		await this.add_initial_events(timetable);
@@ -141,18 +143,18 @@ export default class Client {
 	private async update_lesson(lesson: LessonMO) {
 		if(!lesson) return;
 		let colorId = lesson.lesson_state == state_cancelled ? color_red : color_green;
-		await google.update(lesson.eventId!, lesson.subject!, lesson.room!, lesson.teacher!, colorId, lesson.start!, lesson.end!);
+		await this.google.update(lesson.eventId!, lesson.subject!, lesson.room!, lesson.teacher!, colorId, lesson.start!, lesson.end!);
 	};
 
 	private async add_lesson(lesson: LessonMO) {
 		if(!lesson) return;
 		let colorId = lesson.lesson_state == state_cancelled ? color_red : color_green;
-		await google.insert_event(lesson.eventId!, lesson.subject!, lesson.room!, lesson.teacher!, colorId, lesson.start!, lesson.end!);
+		await this.google.insert_event(lesson.eventId!, lesson.subject!, lesson.room!, lesson.teacher!, colorId, lesson.start!, lesson.end!);
 	};
 
 	private async delete_lesson(lesson: LessonMO) {
 		if(!lesson) return;
-		await google.delete_event(String(lesson.eventId));
+		await this.google.delete_event(String(lesson.eventId));
 	};
 
 	public async sync(google_timetable: LessonMO[], untis_timetable: LessonMO[]) {

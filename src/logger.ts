@@ -1,20 +1,21 @@
 import winston from 'winston';
 import pushsafer from 'pushsafer-notifications';
+import config from '../user/config.json';
 const progress = require('cli-progress');
 
 const file_logger = winston.createLogger({
 	levels: winston.config.syslog.levels,
 	format: winston.format.json(),
 	transports: [
-		new winston.transports.File({ filename: 'log/error.log', level: 'error' }),
-		new winston.transports.File({ filename: 'log/all.log' })
+		new winston.transports.File({ filename: 'logs/error.log', level: 'error' }),
+		new winston.transports.File({ filename: 'logs/all.log' })
 	]
 });
 
 const push = new pushsafer({
-	k: process.env.PUSHKEY!
+	k: config.pushsafer.key
 });
-const device = process.env.DEVICE;
+const device = config.pushsafer.device;
 
 export default class Logger {
 	public readonly prefix: string;
@@ -45,8 +46,7 @@ export default class Logger {
 	}
 
 	public push_cancellation(subject: any, date_string: String) {
-		if(process.env.PUSHENABLED != 'true') return;
-
+		if(config.pushsafer.enabled != true) return;
 		var msg = {
 			t: `${subject} cancelled.`,
 			m: `${subject} on ${date_string} cancelled`,
@@ -59,7 +59,7 @@ export default class Logger {
 	}
 
 	public push_crash() {
-		if(process.env.PUSHENABLED != 'true') return;
+		if(config.pushsafer.enabled != true) return;
 		var msg = {
 			t: `untisgoogle crashed.`,
 			m: `Check logs.`,

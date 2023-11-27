@@ -1,0 +1,19 @@
+{
+    "untis": {
+        "schoolurl": "",
+        "webuser": ""
+    },
+    "google": {
+        "calendarId": ""
+    },
+    "pushsafer": {
+        "enabled": false, //optional, just change to 'false' if not wanted 
+        "device": "",
+        "key": ""
+    },
+    "settings": {
+        "lessons": [], //optional, leave empty for all lessons
+        "check_interval": 30, //the interval in minutes, in which calendar and untis are compared to each other
+        "check_range": 90 //the range in days, in which calendar and untis are compared to each other
+    }
+}
