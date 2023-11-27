@@ -111,4 +111,5 @@ dist
 # ingore build
 build/
 
-old_timetable.json
+config.json
+credentials.json

@@ -1,5 +1,5 @@
 import WebUntis from 'webuntis';
-import LessonMO, { color_green, color_red, state_cancelled } from './lesson';
+import LessonMO from './lesson';
 import google from './google';
 import Logger from './logger';
 
@@ -118,8 +118,7 @@ export default class Client {
 			bar.start(timetable.length);
 			let i = 0;
 			for(const lesson of timetable) {
-				let colorId = lesson.lesson_state == state_cancelled ? color_red : color_green;
-				await google.insert_event(lesson.eventId!, lesson.subject!, lesson.room!, lesson.teacher!, colorId, lesson.start!, lesson.end!);
+				await this.add_lesson(lesson);
 
 				i += 1;
 				bar.increment();
@@ -140,14 +139,15 @@ export default class Client {
 
 	private async update_lesson(lesson: LessonMO) {
 		if(!lesson) return;
-		let colorId = lesson.lesson_state == state_cancelled ? color_red : color_green;
-		await google.update(lesson.eventId!, lesson.subject!, lesson.room!, lesson.teacher!, colorId, lesson.start!, lesson.end!);
+		let colorId = lesson.get_color_by_state(lesson.state);
+		if(colorId == lesson.get_cancelled_color()) this.logger.push_cancellation(lesson);
+		await google.update(lesson.eventId, lesson.subject, lesson.room, lesson.teacher, colorId, lesson.start, lesson.end);
 	};
 
 	private async add_lesson(lesson: LessonMO) {
 		if(!lesson) return;
-		let colorId = lesson.lesson_state == state_cancelled ? color_red : color_green;
-		await google.insert_event(lesson.eventId!, lesson.subject!, lesson.room!, lesson.teacher!, colorId, lesson.start!, lesson.end!);
+		let colorId = lesson.get_color_by_state(lesson.state);
+		await google.insert_event(lesson.eventId, lesson.subject, lesson.room, lesson.teacher, colorId, lesson.start, lesson.end);
 	};
 
 	private async delete_lesson(lesson: LessonMO) {
@@ -156,7 +156,9 @@ export default class Client {
 	};
 
 	public async sync(google_timetable: LessonMO[], untis_timetable: LessonMO[]) {
-		if(JSON.stringify(google_timetable) === JSON.stringify(untis_timetable)) {
+		let google_json_string = JSON.stringify(google_timetable);
+		let untis_json_string = JSON.stringify(untis_timetable);
+		if(google_json_string == untis_json_string) {
 			this.logger.info('Google and Untis are synced.');
 			return;
 		}
@@ -168,8 +170,9 @@ export default class Client {
 		for(const lesson of untis_timetable) {
 			let google_lesson = google_timetable.find(x => x.eventId == lesson.eventId);
 			if(google_lesson) {
-				sync_message += google_lesson.get_differences(lesson);
-				if(sync_message != '') {
+				let log_entry = google_lesson.get_differences(lesson);
+				if(log_entry != '') {
+					sync_message += log_entry;
 					await this.update_lesson(lesson);
 				}
 			} else {
