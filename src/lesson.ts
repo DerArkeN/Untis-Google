@@ -1,24 +1,28 @@
 import { Lesson } from 'webuntis';
 import { calendar_v3 } from 'googleapis';
-import Logger from './logger';
 const datefns = require('date-fns');
 
+const state_regular = '';
 const color_green = '2';
-const color_red = '4';
+const state_irregular = 'irregular';
+const color_purple = '1';
 const state_cancelled = 'cancelled';
+const color_red = '4';
 
-export { color_green, color_red, state_cancelled };
+const state_color_map = new Map<string, string>([
+    [state_regular, color_green],
+    [state_irregular, color_purple],
+    [state_cancelled, color_red]
+]);
 
 export default class LessonMO {
-    protected readonly logger = new Logger('Lesson');
-
     public eventId: string = '';
     public subject: string = '';
     public room: string = '';
     public teacher: string = '';
     public start: Date = new Date();
     public end: Date = new Date();
-    public lesson_state: string = '';
+    public state: string = state_regular;
 
     constructor(lesson?: Lesson, event?: calendar_v3.Schema$Event) {
         if(lesson) {
@@ -28,7 +32,7 @@ export default class LessonMO {
             this.teacher = lesson.te[0] != null ? lesson.te[0].longname : '';
             this.start = datefns.parse(`${lesson.date}${lesson.startTime}`, 'yyyyMMddHmm', datefns.startOfDay(new Date()));
             this.end = datefns.parse(`${lesson.date}${lesson.endTime}`, 'yyyyMMddHmm', datefns.startOfDay(new Date()));
-            if(lesson.code) this.lesson_state = lesson.code;
+            if(lesson.code) this.state = lesson.code;
         }
         if(event) {
             this.eventId = event.id!;
@@ -38,14 +42,7 @@ export default class LessonMO {
             this.teacher = location[1];
             this.start = new Date(event.start!.dateTime!);
             this.end = new Date(event.end!.dateTime!);
-            switch(event.colorId) {
-                case color_green:
-                    this.lesson_state = '';
-                    break;
-                case color_red:
-                    this.lesson_state = state_cancelled;
-                    break;
-            }
+            this.state = this.get_state_by_color(event.colorId!);
         }
     }
 
@@ -56,7 +53,7 @@ export default class LessonMO {
         if(this.teacher != lessson.teacher) return false;
         if(this.start.getTime() != lessson.start.getTime()) return false;
         if(this.end.getTime() != lessson.end.getTime()) return false;
-        if(this.lesson_state != lessson.lesson_state) return false;
+        if(this.state != lessson.state) return false;
         return true;
     }
 
@@ -69,27 +66,40 @@ export default class LessonMO {
         let new_room = lesson.room;
         let old_teacher = this.teacher;
         let new_teacher = lesson.teacher;
-        let old_state = this.lesson_state;
-        let new_state = lesson.lesson_state;
+        let old_state = this.state;
+        let new_state = lesson.state;
         let old_subject = this.subject;
         let new_subject = lesson.subject;
 
         if(old_room != new_room) {
-            out_message += `\n-Room: ${old_room} -> ${new_room}. (${new_subject} on ${start})`;
+            out_message += `\n-Room: '${old_room}' -> '${new_room}'. (${new_subject} on ${start})`;
         }
         if(old_teacher != new_teacher) {
-            out_message += `\n-Teacher: ${old_teacher} -> ${new_teacher}. (${new_subject} on ${start})`;
+            out_message += `\n-Teacher: '${old_teacher}' -> '${new_teacher}'. (${new_subject} on ${start})`;
         }
-        if(!(old_state == new_state)) {
-            if(new_state == state_cancelled) {
-                out_message += `\n-Cancelled ${new_subject} on ${start}.`;
-                this.logger.push_cancellation(new_subject, start);
-            }
+        if(old_state != new_state) {
+            out_message += `\n-State: '${old_state}' -> '${new_state}'. (${new_subject} on ${start})`;
         }
-        if(!(old_subject == new_subject)) {
-            out_message += `\n-Subject: ${old_subject} -> ${new_subject}. (${new_subject} on ${start})`;
+        if(old_subject != new_subject) {
+            out_message += `\n-Subject: '${old_subject}' -> '${new_subject}'. (${new_subject} on ${start})`;
         }
 
         return out_message;
+    }
+
+    public get_color_by_state(state: string): string {
+        let color = state_color_map.get(state);
+        return color ? color : color_green;
+    }
+
+    public get_state_by_color(color: string): string {
+        for(let [_state, _color] of state_color_map.entries()) {
+            if(color == _color) return _state;
+        }
+        return state_regular;
+    }
+
+    public get_cancelled_color(): string {
+        return state_color_map.get(state_cancelled)!;
     }
 }

@@ -1,6 +1,7 @@
 import winston from 'winston';
 import pushsafer from 'pushsafer-notifications';
 import config from '../user/config.json';
+import LessonMO from './lesson';
 const progress = require('cli-progress');
 
 const file_logger = winston.createLogger({
@@ -45,11 +46,12 @@ export default class Logger {
 		});
 	}
 
-	public push_cancellation(subject: any, date_string: String) {
-		if(config.pushsafer.enabled != true) return;
+	public push_cancellation(lesson: LessonMO) {
+		if(process.env.PUSHENABLED != 'true') return;
+
 		var msg = {
-			t: `${subject} cancelled.`,
-			m: `${subject} on ${date_string} cancelled`,
+			t: `${lesson.subject} cancelled.`,
+			m: `${lesson.subject} on ${lesson.start.toLocaleDateString()} cancelled`,
 			i: '95',
 			c: '#008b02',
 			d: device
