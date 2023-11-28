@@ -99,8 +99,10 @@ export default class Client {
 	public async get_timetable_from_google(): Promise<LessonMO[] | undefined> {
 		let re_timetable: LessonMO[] = [];
 		let rangeStart = new Date();
+		rangeStart.setUTCHours(0,0,0,0);
 		let rangeEnd = new Date();
 		rangeEnd.setDate(rangeStart.getDate() + this.range);
+		rangeEnd.setUTCHours(23,59,59,999);
 
 		let events = await google.get_events(rangeStart, rangeEnd);
 		for(const event of events!) {
