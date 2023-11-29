@@ -31,12 +31,10 @@ export default class GoogleAPI {
 					'colorId': colorId,
 					'location': `${room}/${teacher}`,
 					'start': {
-						'dateTime': start.toISOString(),
-						'timeZone': 'Europe/Berlin'
+						'dateTime': start.toISOString()
 					},
 					'end': {
-						'dateTime': end.toISOString(),
-						'timeZone': 'Europe/Berlin'
+						'dateTime': end.toISOString()
 					}
 				}
 			});
@@ -60,12 +58,10 @@ export default class GoogleAPI {
 					'colorId': colorId,
 					'location': `${room}/${teacher}`,
 					'start': {
-						'dateTime': start.toISOString(),
-						'timeZone': 'Europe/Berlin'
+						'dateTime': start.toISOString()
 					},
 					'end': {
-						'dateTime': end.toISOString(),
-						'timeZone': 'Europe/Berlin'
+						'dateTime': end.toISOString()
 					}
 				}
 			});
@@ -83,8 +79,7 @@ export default class GoogleAPI {
 				maxResults: 1000,
 				timeMin: rangeStart.toISOString(),
 				timeMax: rangeEnd ? rangeEnd.toISOString() : undefined,
-				orderBy: 'startTime',
-				timeZone: 'Europe/Berlin'
+				orderBy: 'startTime'
 			});
 
 			let items = response['data']['items'];
