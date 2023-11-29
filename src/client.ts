@@ -130,10 +130,10 @@ export default class Client {
 		await this.google.delete_all_events();
 
 		let rangeStart = new Date();
-		rangeStart.setUTCHours(0, 0, 0, 0);
+		rangeStart.setHours(0, 0, 0, 0);
 		let rangeEnd = new Date();
 		rangeEnd.setDate(rangeStart.getDate() + this.range);
-		rangeEnd.setUTCHours(23, 59, 59, 999);
+		rangeEnd.setHours(23, 59, 59, 999);
 
 		let timetable = await this.get_timetable_from_untis(rangeStart, rangeEnd);
 		await this.add_initial_events(timetable);
@@ -159,7 +159,6 @@ export default class Client {
 
 	public async sync() {
 		let rangeStart = new Date();
-		rangeStart.setDate(28);
 		rangeStart.setHours(0, 0, 0, 0);
 		let rangeEnd = new Date();
 		rangeEnd.setDate(rangeStart.getDate() + this.range);
