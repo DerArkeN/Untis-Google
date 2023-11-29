@@ -64,11 +64,8 @@ export default class Client {
 		}
 	}
 
-	public async get_timetable_from_untis(): Promise<LessonMO[]> {
+	public async get_timetable_from_untis(rangeStart: Date, rangeEnd: Date): Promise<LessonMO[]> {
 		let re_timetable: LessonMO[] = [];
-		let rangeStart = new Date();
-		let rangeEnd = new Date();
-		rangeEnd.setDate(rangeStart.getDate() + this.range);
 		try {
 			await this.login();
 			let timetable = await this.untisAPI.getOwnClassTimetableForRange(rangeStart, rangeEnd);
@@ -87,7 +84,7 @@ export default class Client {
 					re_timetable.push(lesson);
 				}
 			}
-			re_timetable.sort((a: LessonMO, b: LessonMO) => { return a.start.getTime() - b.start.getTime(); });
+			re_timetable.sort((a: LessonMO, b: LessonMO) => { return Number(a.eventId) - Number(b.eventId); });
 
 			this.logger.info(`Got ${re_timetable.length} lessons from Untis.`);
 		} catch(err: any) {
@@ -96,19 +93,14 @@ export default class Client {
 		return re_timetable;
 	};
 
-	public async get_timetable_from_google(): Promise<LessonMO[] | undefined> {
+	public async get_timetable_from_google(rangeStart: Date, rangeEnd: Date): Promise<LessonMO[] | undefined> {
 		let re_timetable: LessonMO[] = [];
-		let rangeStart = new Date();
-		rangeStart.setUTCHours(0,0,0,0);
-		let rangeEnd = new Date();
-		rangeEnd.setDate(rangeStart.getDate() + this.range);
-		rangeEnd.setUTCHours(23,59,59,999);
 
 		let events = await google.get_events(rangeStart, rangeEnd);
 		for(const event of events!) {
 			re_timetable.push(new LessonMO(undefined, event));
 		}
-		re_timetable.sort((a: LessonMO, b: LessonMO) => { return a.start.getTime() - b.start.getTime(); });
+		re_timetable.sort((a: LessonMO, b: LessonMO) => { return Number(a.eventId) - Number(b.eventId); });
 
 		this.logger.info(`Got ${re_timetable.length} lessons from Google.`);
 		return re_timetable;
@@ -135,7 +127,13 @@ export default class Client {
 	public async rewrite() {
 		await google.delete_all_events();
 
-		let timetable = await this.get_timetable_from_untis();
+		let rangeStart = new Date();
+		rangeStart.setUTCHours(0, 0, 0, 0);
+		let rangeEnd = new Date();
+		rangeEnd.setDate(rangeStart.getDate() + this.range);
+		rangeEnd.setUTCHours(23, 59, 59, 999);
+
+		let timetable = await this.get_timetable_from_untis(rangeStart, rangeEnd);
 		await this.add_initial_events(timetable);
 	};
 
@@ -157,7 +155,22 @@ export default class Client {
 		await google.delete_event(String(lesson.eventId));
 	};
 
-	public async sync(google_timetable: LessonMO[], untis_timetable: LessonMO[]) {
+	public async sync() {
+		let rangeStart = new Date();
+		rangeStart.setDate(28);
+		rangeStart.setHours(0, 0, 0, 0);
+		let rangeEnd = new Date();
+		rangeEnd.setDate(rangeStart.getDate() + this.range);
+		rangeEnd.setHours(23, 59, 59, 999);
+
+		let google_timetable = await this.get_timetable_from_google(rangeStart, rangeEnd);
+		let untis_timetable = await this.get_timetable_from_untis(rangeStart, rangeEnd);
+
+		if(!(google_timetable && untis_timetable)) {
+			this.logger.error('Either Google or Untis did not return any results');
+			return;
+		}
+
 		let google_json_string = JSON.stringify(google_timetable);
 		let untis_json_string = JSON.stringify(untis_timetable);
 		if(google_json_string == untis_json_string) {

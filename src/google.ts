@@ -19,6 +19,11 @@ const auth = new google.auth.JWT(
 
 const logger = new Logger('Google');
 
+let timeZone: string;
+calendar.calendars.get({ auth: auth, calendarId: calendarId }).then((value) => {
+	timeZone = value['data'].timeZone!;
+});
+
 const insert_event = async (eventId: string, subject: string, room: string, teacher: string, colorId: string, start: Date, end: Date) => {
 	try {
 		await calendar.events.insert({
@@ -31,11 +36,11 @@ const insert_event = async (eventId: string, subject: string, room: string, teac
 				'location': `${room}/${teacher}`,
 				'start': {
 					'dateTime': start.toISOString(),
-					'timeZone': 'Europe/Berlin'
+					'timeZone': timeZone
 				},
 				'end': {
 					'dateTime': end.toISOString(),
-					'timeZone': 'Europe/Berlin'
+					'timeZone': timeZone
 				}
 			}
 		});

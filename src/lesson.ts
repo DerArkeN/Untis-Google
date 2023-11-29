@@ -35,8 +35,8 @@ export default class LessonMO {
             if(lesson.code) this.state = lesson.code;
         }
         if(event) {
-            this.eventId = event.id!;
-            this.subject = event.summary!;
+            this.eventId = event.id ? event.id : "";
+            this.subject = event.summary ? event.summary : "";
             let location = event.location != null ? event.location.split('/') : ['404', 'error'];
             this.room = location[0];
             this.teacher = location[1];
