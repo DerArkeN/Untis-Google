@@ -1,6 +1,6 @@
 import WebUntis from 'webuntis';
 import LessonMO from './lesson';
-import Google from './GoogleAPI';
+import GoogleAPI from './GoogleAPI';
 import Logger from './logger';
 import config from '../user/config.json';
 
@@ -11,7 +11,7 @@ export default class Client {
 	public readonly weburl: string;
 
 	private readonly logger = new Logger('Client');
-	private readonly google = new Google(config.google.calendarId);
+	private readonly google = new GoogleAPI(config.google.calendarId);
 
 	private classes: String[] | undefined;
 	private range: number = 30;
