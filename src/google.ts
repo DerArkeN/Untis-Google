@@ -65,11 +65,11 @@ const update = async (eventId: string, subject: string, room: string, teacher: s
 				'location': `${room}/${teacher}`,
 				'start': {
 					'dateTime': start.toISOString(),
-					'timeZone': 'Europe/Berlin'
+					'timeZone': timeZone
 				},
 				'end': {
 					'dateTime': end.toISOString(),
-					'timeZone': 'Europe/Berlin'
+					'timeZone': timeZone
 				}
 			}
 		});
@@ -89,7 +89,7 @@ const get_events = async (rangeStart: Date, rangeEnd: Date | undefined = undefin
 			timeMin: rangeStart.toISOString(),
 			timeMax: rangeEnd ? rangeEnd.toISOString() : undefined,
 			orderBy: 'startTime',
-			timeZone: 'Europe/Berlin'
+			timeZone: timeZone
 		});
 
 		let items = response['data']['items'];
