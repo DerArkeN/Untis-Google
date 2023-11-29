@@ -16,13 +16,13 @@ const run = async (client: Untis) => {
 	if(args.includes('rewrite')) await client.rewrite();
 
 	let interval = parseInt(process.env.INTERVAL_MINUTES || "30") * 60 * 1000;
-	check_cycle(client);
+	sync_cycle(client);
 	let intervalID = setInterval(async () => {
-		check_cycle(client, intervalID);
+		sync_cycle(client, intervalID);
 	}, interval);
 };
 
-const check_cycle = async (client: Untis, intervalID?: NodeJS.Timeout) => {
+const sync_cycle = async (client: Untis, intervalID?: NodeJS.Timeout) => {
 	let running = false;
 	if(running) return;
 	running = true;
@@ -31,12 +31,7 @@ const check_cycle = async (client: Untis, intervalID?: NodeJS.Timeout) => {
 	let retry = 0;
 	while(!success) {
 		try {
-			let google_timetable = await client.get_timetable_from_google();
-			let untis_timetable = await client.get_timetable_from_untis();
-
-			if(google_timetable && untis_timetable) {
-				await client.sync(google_timetable, untis_timetable);
-			}
+			client.sync();
 
 			success = true;
 			running = false;
