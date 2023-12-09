@@ -142,7 +142,7 @@ export default class Client {
 	private async update_lesson(lesson: LessonMO) {
 		if(!lesson) return;
 		let colorId = lesson.get_color_by_state(lesson.state);
-		if(colorId == lesson.get_cancelled_color()) this.logger.push_cancellation(lesson);
+		if(colorId == lesson.get_cancelled_color()) await this.logger.push_cancellation(lesson);
 		await this.google.update(lesson.eventId, lesson.subject, lesson.room, lesson.teacher, colorId, lesson.start, lesson.end);
 	};
 

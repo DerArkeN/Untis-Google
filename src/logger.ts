@@ -46,9 +46,8 @@ export default class Logger {
 		});
 	}
 
-	public push_cancellation(lesson: LessonMO) {
-		if(process.env.PUSHENABLED != 'true') return;
-
+	public async push_cancellation(lesson: LessonMO) {
+		if(config.pushsafer.enabled != true) return;
 		var msg = {
 			t: `${lesson.subject} cancelled.`,
 			m: `${lesson.subject} on ${lesson.start.toLocaleDateString()} cancelled`,
@@ -57,10 +56,10 @@ export default class Logger {
 			d: device
 		};
 
-		push.send(msg, () => { });
+		await push.send(msg, () => { });
 	}
 
-	public push_crash() {
+	public async push_crash() {
 		if(config.pushsafer.enabled != true) return;
 		var msg = {
 			t: `untisgoogle crashed.`,
@@ -70,6 +69,6 @@ export default class Logger {
 			d: device
 		};
 
-		push.send(msg, () => { });
+		await push.send(msg, () => { });
 	}
 }
