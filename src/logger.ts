@@ -45,7 +45,7 @@ export default class Logger {
 		});
 	}
 
-	public push_cancellation(lesson: LessonMO) {
+	public async push_cancellation(lesson: LessonMO) {
 		if(process.env.PUSHENABLED != 'true') return;
 
 		var msg = {
@@ -56,10 +56,10 @@ export default class Logger {
 			d: device
 		};
 
-		push.send(msg, () => { });
+		await push.send(msg, () => { });
 	}
 
-	public push_crash() {
+	public async push_crash() {
 		if(process.env.PUSHENABLED != 'true') return;
 		var msg = {
 			t: `untisgoogle crashed.`,
@@ -69,6 +69,6 @@ export default class Logger {
 			d: device
 		};
 
-		push.send(msg, () => { });
+		await push.send(msg, () => { });
 	}
 }
