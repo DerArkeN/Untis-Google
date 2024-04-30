@@ -68,7 +68,14 @@ export default class Client {
 		let re_timetable: LessonMO[] = [];
 		try {
 			await this.login();
-			let timetable = await this.untisAPI.getOwnClassTimetableForRange(rangeStart, rangeEnd);
+			const schoolyear = await this.untisAPI.getLatestSchoolyear();
+			if(rangeEnd > schoolyear.endDate) {
+				rangeEnd = schoolyear.endDate;
+			}
+			if(rangeStart < schoolyear.startDate) {
+				rangeStart = schoolyear.startDate;
+			}
+			const timetable = await this.untisAPI.getOwnTimetableForRange(rangeStart, rangeEnd);
 			await this.logout();
 
 			for(const val of timetable) {
@@ -165,7 +172,7 @@ export default class Client {
 		let google_timetable = await this.get_timetable_from_google(rangeStart, rangeEnd);
 		let untis_timetable = await this.get_timetable_from_untis(rangeStart, rangeEnd);
 
-		if(!(google_timetable && untis_timetable)) {
+		if(!(google_timetable && untis_timetable) || google_timetable.length == 0 || untis_timetable.length == 0) {
 			this.logger.error('Either Google or Untis did not return any results');
 			return;
 		}
